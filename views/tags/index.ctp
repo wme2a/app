@@ -9,7 +9,7 @@
 	</tr>
 	<?php
 	$i = 0;
-	foreach ($tags as $tag):
+	foreach ($eintraege as $tag):
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';

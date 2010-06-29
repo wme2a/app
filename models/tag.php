@@ -24,6 +24,5 @@ class Tag extends AppModel {
 			'order' => ''
 		)
 	);
-
 }
 ?>

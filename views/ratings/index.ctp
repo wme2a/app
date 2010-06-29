@@ -10,7 +10,7 @@
 	</tr>
 	<?php
 	$i = 0;
-	foreach ($ratings as $rating):
+	foreach ($eintraege as $rating):
 		$class = null;
 		if ($i++ % 2 == 0) {
 			$class = ' class="altrow"';
