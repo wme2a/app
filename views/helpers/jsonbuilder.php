@@ -30,6 +30,7 @@ class JsonbuilderHelper extends AppHelper {
 		if (sizeof($results)>0)
 		{
 			$json = array();
+			
 			foreach ($results as $row) {
 				$props = array();
 				$props["id"] = intval($row['Photo']['id']);
@@ -38,22 +39,25 @@ class JsonbuilderHelper extends AppHelper {
 				$props["created"] = strtotime($row['Photo']['created']);
 				$props["width"] = intval($row['Photo']['width']);
 				$props["height"] = intval($row['Photo']['height']);
-				$props["geo_lat"] = doubleval($row['Photo']['geo_lat']);
-				$props["geo_long"] = doubleval($row['Photo']['geo_long']);
-				$props["aperture"] = utf8_encode($row['Photo']['aperture']);
-				$props["focallength"] = utf8_encode($row['Photo']['focallength']);
+				$props["geo_lat"] = $row['Photo']['geo_lat'] != null ? doubleval($row['Photo']['geo_lat']) : null;
+				$props["geo_long"] = $row['Photo']['geo_long'] != null ? doubleval($row['Photo']['geo_long']) : null;
+				$props["aperture"] = $row['Photo']['aperture'] != null ? utf8_encode($row['Photo']['aperture']) : null;
+				$props["exposuretime"] = $row['Photo']['exposuretime'] != null ? utf8_encode($row['Photo']['exposuretime']) : null;
+				$props["focallength"] =  $row['Photo']['focallength'] != null ? utf8_encode($row['Photo']['focallength']) : null;
 				$props["views"] = intval($row['Photo']['views']);
-				if ($row['Photo']['user_id']!=null && $row['Photo']['user_id']!=0 && $row['Photo']['user_id']!="0") $props["author"] = intval($row['Photo']['user_id']);
+				if ($row['Photo']['user_id'] != null) $props["author"] = intval($row['Photo']['user_id']); //optional JSON attr
 				$props["description"] = utf8_encode($row['Photo']['description']);
 				$tags="";
 				foreach ($row['Tag'] as $r) {
 					$tags .= $r['tag_name'].",";
 				}
 				$props["tags"] = utf8_encode(substr($tags,0,strlen($tags)-1));
-				array_push($json, $props);
+				array_push($json, $props); // style like JSON definition above
+				//array_push($json, array("photo" => $props)); // style like JSON of example WS
 			}
 		}
-		return $this->output(json_encode($json));
+		return $this->output(json_encode($json)); // style like JSON definition above
+		//return $this->output(json_encode(array("photos" => $json))); // style like JSON of example WS
 	}
 	
 	function commentsToJson($results) 
@@ -79,15 +83,18 @@ class JsonbuilderHelper extends AppHelper {
 			foreach ($results as $r) {
 				$properties = array();
 				$properties["id"]=intval($r['Comment']['id']);
-				$properties["title"]=utf8_encode($r['Comment']['title']);
-				$properties["user"]=intval($r['Comment']['user_id']);
-				$properties["photo"]=intval($r['Comment']['photo_id']);
-				$properties["created"]=strtotime($r['Comment']['created']);
-				$properties["comment"]=utf8_encode($r['Comment']['comment_text']);
-				array_push($json, $properties);
+				$properties["title"] = $r['Comment']['title'] != null ? utf8_encode($r['Comment']['title']) : null;
+				$properties["user"] = $r['Comment']['user_id'] != null ? intval($r['Comment']['user_id']) : null;
+				$properties["photo"] = intval($r['Comment']['photo_id']);
+				$properties["created"] = strtotime($r['Comment']['created']);
+				$properties["comment"] = utf8_encode($r['Comment']['comment_text']);
+				$properties["mod"] = $r['Comment']['modified'];
+				array_push($json, $properties); // style like JSON definition above
+				//array_push($json, array("comment" => $properties)); style like JSON of example WS
 			}
 		}
-		return $this->output(json_encode($json));
+		return $this->output(json_encode($json)); // style like JSON definition above
+		//return $this->output(json_encode(array("comments" => $json))); style like JSON of example WS
 	}
 	
 	function tagsToJson($results) 

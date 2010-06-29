@@ -15,12 +15,12 @@ class PhotosController extends AppController {
 		$allowedCtrlParams = array(
 			"apikey" => "",
 			"tags" => "",
-			"geoframe" => "",  //TODO ====> sortby: "rating"=>"Rating.TODO"
-			"sortby" => array("title"=>"Photo.title","created"=>"Photo.created","author"=>"Photo.user_name","rating"=>"Rating.TODO","views"=>"Photo.views"),
+			"geoframe" => "",
+			"sortby" => array("title"=>"Photo.title","created"=>"Photo.created","author"=>"Photo.user_name","rating"=>"COUNT(Rating.value)","views"=>"Photo.views"),
 			"searchterm" => "",
 			"offset" => 0,
 			"limit" => 0,
-			"format" => array("xml","json") //,"img","smallimg","thumbnail","tinyimg")
+			"format" => array("xml","json","img","smallimg","thumbnail","tinyimg")
 			);
 		
 		$invalidParams=false;
@@ -66,25 +66,25 @@ class PhotosController extends AppController {
 								break;
 							}
 							case "tags":
-							{	//TODO 	
+							{	
 								$val = preg_replace('/[^a-zA-Z0-9öÖüÜäÄß_,]/','',$val);
 								$tags = preg_split('/,/',$val,-1,PREG_SPLIT_NO_EMPTY);
 								if($tags) {
-									//$tgs = array();
-									$s = "";
+									$tgs = array();
+									//$s = "";
 									foreach ($tags as $tag) 
 									{
-										//$tgs = array_merge($tgs,array(array('Tag.tag_name' => $tag)));
-										$s .= "'".$tag."',";
+										$tgs = array_merge($tgs,array(array("Tag.tag_name LIKE '".$tag."'")));
+										//$s .= "'".$tag."',";
 									}
-									//$parsedParams["tags"] = array('AND' => $tgs);
-									$parsedParams["tags"] = array("`Tag`.`tag_name` IN (".substr($s,0,strlen($s)-1).")");
+									$parsedParams["tags"] = array('OR' => $tgs);
+									//$parsedParams["tags"] = array("`Tag`.`tag_name` IN (".substr($s,0,strlen($s)-1).")");
 								}
 								break;
 							}
 							case "geoframe":
-							{	//TODO
-								echo "TODO: ".$key . " = " . $val . "<br />";
+							{	
+								//TODO
 								break;
 							}
 							case "sortby":
@@ -96,7 +96,7 @@ class PhotosController extends AppController {
 								break;
 							}
 							case "offset":
-							{	//TODO
+							{	
 								$parsedParams["offset"]= (int)preg_replace('/[^0-9]/','',$val);
 								break;
 							}
@@ -114,8 +114,8 @@ class PhotosController extends AppController {
 								break;
 							}
 							case "apikey":
-							{	//TODO
-								echo "TODO: ".$key . " = " . $val . "<br />";
+							{	
+								// has not to be implemented
 								break;
 							}
 						}
@@ -130,13 +130,17 @@ class PhotosController extends AppController {
 		
 		if (!$invalidParams)
 		{
+			//
+			// ____stuff for db request starts HERE_____
+			//
+		  {
 			// creating $parsedParams["urlparams"] for conditions/where-clause
 			if ($urlParams) 
 			{
 				$parsedParams["urlparams"] = array('AND' => $urlParams);
 			}
 			
-			// join photos <> tags
+			// join photos <> tags & ratings
 			$joins = array(
 				array('table' => 'tags',
 					'alias' => 'Tag',
@@ -154,6 +158,10 @@ class PhotosController extends AppController {
 				)
 			);
 			
+			// for offset : NEW_limit = limit + offset
+			if ($parsedParams["offset"] > 0 && $parsedParams["limit"] > 0) $parsedParams["limit"] += $parsedParams["offset"];
+				
+			
 			// conditions/where-clause available OR null
 			if ($parsedParams["urlparams"] || $parsedParams["searchterm"] || $parsedParams["tags"])
 				$conditions = array('AND' => array(
@@ -164,7 +172,7 @@ class PhotosController extends AppController {
 			else $conditions = null; 
 			
 			// db request
-			$result = $this->Photo->find('all', array(
+			$results = $this->Photo->find('all', array(
 				'joins' => $joins,
 				'conditions' => $conditions,
 				'order' => $parsedParams["sortby"],
@@ -173,30 +181,63 @@ class PhotosController extends AppController {
 				//,'page' => 2
 			));
 			
+			// offset : delete from results position 0 to offset 
+			if ($parsedParams["offset"] > 0)
+			{
+				$offset = (int)$parsedParams["offset"];
+				foreach ($results as $key => $val)
+				{
+					if ($offset>0) 
+					{
+						$offset--;
+						unset($results[$key]);
+					}
+				}
+			}
+		  }
+			//
+			// ____stuff for db request ends HERE_____
+			//
+			
+			// format : check image types & db result size = 1
+			if (in_array($parsedParams["format"],array("img","smallimg","thumbnail","tinyimg")))
+			{
+				$results = sizeof($results) == 1 ? $parsedParams["format"] : null;
+			}
+				
+			// setting vars for views
+			$this->set("results",$results);
+			
 			switch ($parsedParams["format"]) 
 			{
 				case "html": 
-					echo "<br />STATUS:<b><font color='green'>&nbsp;OK</font><b><br /><br />";
-					$this->set("results",$result);
+					echo "<br />STATUS:<b><font color='green'>&nbsp;OK - Errorcode 200</font><b><br /><br />";
 					break;
+				case "img":
+					$this->render('\\'.$model.'s\img\index','\img\default',null);
+					break;
+				case "smallimg":
+					$this->render('\\'.$model.'s\img\index','\img\default',null);
+					break;
+				case "thumbnail":
+					$this->render('\\'.$model.'s\img\index','\img\default',null);
+					break;
+				case "tinyimg":
+					$this->render('\\'.$model.'s\img\index','\img\default',null);
+					break;	
 				case "json": 
-					//TODO
-					$this->set("results",$result);
 					$this->render('\\'.$model.'s\json\index','\json\default',null);
 					break;
 				default: //"xml"
-					$this->set("results",$result);
 					$this->render('\\'.$model.'s\xml\index','\xml\default',null);
 					break;
 			}
 		}
 		else
 		{
-			echo "<br />STATUS:<b><font color='red'>&nbsp;INVALID-PARAMS !!</font><b><br /><br />";
 			$this->set("results",null);
+			$this->render('\errors\invalide_params','default',null);
 		}
-		//$this->Photo->recursive = 0;
-		//$this->set('photos', $this->paginate());
 	}
 
 	function view($id = null) {

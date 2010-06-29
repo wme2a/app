@@ -7,7 +7,8 @@
 		<th>tags</th>
 		<th>views</th>
 		<th>created</th>
-		<th>author</th>
+		<th>user_id = author</th>
+		<th>user_name</th>
 		<th>rating</th>
 	  </tr>
 	  <!-- php echo "DATABASE RESULT<br />"?>
@@ -21,8 +22,13 @@
 		<td><?php foreach($result["Tag"] as $t) {echo $t["tag_name"]."<br />";} ?></td>
 		<td><?php echo $result["Photo"]["views"] ?></td>    
 		<td><?php echo $result["Photo"]["created"] ?></td>    
+		<td><?php echo $result["Photo"]["user_id"] ?></td>    
 		<td><?php echo $result["Photo"]["user_name"] ?></td>    
-		<td><?php $rt=0; foreach($result["Rating"] as $r) {$rt+=$r["value"];} if(sizeof($result["Rating"])>0)$rt=$rt/sizeof($result["Rating"]); else $rt=0; echo $rt; ?></td>    
+		<td>
+			<?php foreach($result["Rating"] as $rt) {echo $rt["value"]."<br />";}
+			//$rt=0; foreach($result["Rating"] as $r) {$rt+=$r["value"];} if(sizeof($result["Rating"])>0)$rt=$rt/sizeof($result["Rating"]); else $rt=0; echo $rt;
+		?>
+		</td>    
 	  </tr>
 	  <?php }?>
 	</table> 
