@@ -204,7 +204,14 @@ class PhotosController extends AppController
 			// format : check image types & db result size = 1
 			if (in_array($parsedParams["format"],array("img","smallimg","thumbnail","tinyimg")))
 			{
-				$results = sizeof($results) == 1 ? $parsedParams["format"] : null;
+				if(sizeof($results) == 1)
+				{
+					$results['imgtype'] = $parsedParams["format"]; // add param "imgtype" for view switch
+				}
+				else
+				{
+					$results = null;
+				}
 			}
 				
 			// setting vars for views

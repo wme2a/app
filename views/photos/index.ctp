@@ -1,4 +1,5 @@
-﻿<?php if($results) { // builds a simple table from db results ?>
+﻿<?php 
+	if($results) { // builds a simple table from db results ?>
 	<table>
 	  <tr>
 		<th>id</th>
@@ -32,4 +33,11 @@
 	  </tr>
 	  <?php }?>
 	</table> 
-<?php }?>
+<?php 
+	}
+	else 
+	{
+		header("HTTP/1.0 412 Precondition Failed");
+		echo "";
+	}
+?>

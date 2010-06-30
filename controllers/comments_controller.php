@@ -1,4 +1,4 @@
-ï»¿<?php
+<?php
 class CommentsController extends AppController
 {
 
@@ -41,7 +41,7 @@ class CommentsController extends AppController
 				
 				if (array_key_exists($key, $allowedQryParams))
 				{
-					$val = preg_replace('/[^a-zA-Z0-9Ã¶Ã–Ã¼ÃœÃ¤Ã„ÃŸ_]/','',$val);
+					$val = preg_replace('/[^a-zA-Z0-9öÖüÜäÄß_]/','',$val);
 					$urlParams = array_merge($urlParams,array(array($model.'.'.$allowedQryParams[$key] => $val)));
 				}
 				else 

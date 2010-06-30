@@ -1,27 +1,28 @@
 <?php 
-	if ($results=="img")
-	{
-		//TODO ?><br />STATUS:<b><font color='green'>&nbsp;SHOW PHOTO Size: IMG - Errorcode 200</font><b><br /><br />
-		<?php
+	if ($results) 
+	{	
+		$img_path = "..\webroot\img\\" . $results["imgtype"] . "\\" . $results[0]["Photo"]["original_filename"];
+		
+		header('Content-Type: ' . image_type_to_mime_type(exif_imagetype($img_path)));
+		header('Content-Disposition: filename="'.$results[0]["Photo"]["original_filename"].'"'); 
+		
+		switch (image_type_to_extension(exif_imagetype($img_path)))
+		{
+			case ".jpeg":
+				imagejpeg(imagecreatefromjpeg($img_path));
+				break;
+			case ".png":
+				imagepng(imagecreatefrompng($img_path));
+				break;
+			default:
+				header("HTTP/1.0 404 Not Found");
+				echo "";
+				break;
+		}
 	}
-	if ($results=="smallimg")
+	else
 	{
-		//TODO ?><br />STATUS:<b><font color='green'>&nbsp;SHOW PHOTO Size: SMALLIMG - Errorcode 200</font><b><br /><br />
-		<?php
-	}
-	if ($results=="thumbnail")
-	{
-		//TODO ?><br />STATUS:<b><font color='green'>&nbsp;SHOW PHOTO Size: THUMBNAIL - Errorcode 200</font><b><br /><br />
-		<?php
-	}
-	if ($results=="tinyimg")
-	{
-		//TODO ?><br />STATUS:<b><font color='green'>&nbsp;SHOW PHOTO Size: TINYIMG - Errorcode 200</font><b><br /><br />
-		<?php
-	}
-	
-	if (!$results)
-	{
-		?><br />STATUS:<b><font color='red'>&nbsp;INVALID-PRECONDITION - Errorcode 412</font><b><br /><br /><?php
+		header("HTTP/1.0 412 Precondition Failed");
+		echo "";
 	}
 ?>
