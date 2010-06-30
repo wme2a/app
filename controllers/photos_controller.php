@@ -1,11 +1,12 @@
 <?php
-class PhotosController extends AppController {
+class PhotosController extends AppController
+{
 
 	var $name = 'Photos';
-	var $components = array('RequestHandler');
 	var $helpers = array('Xmlbuilder','Jsonbuilder');
 
-	function index() {
+	function index() 
+	{
 		
 		// URL Beispiele
 		// http://localhost/cakephp/photos?id=2
@@ -23,17 +24,18 @@ class PhotosController extends AppController {
 			"format" => array("xml","json","img","smallimg","thumbnail","tinyimg")
 			);
 		
-		$invalidParams=false;
-		$model="";
-		$urlParams=array();
+		$invalidParams = false;
+		$model = "";
+		$urlParams = array();
 		
+		// kind of default settings spec
 		$parsedParams=array();
-		$parsedParams["format"]="html";
+		$parsedParams["format"]="xml";
+		$parsedParams["urlparams"]=array();
 		$parsedParams["offset"]=$allowedCtrlParams["offset"];
 		$parsedParams["limit"]=$allowedCtrlParams["limit"];
 		$parsedParams["tags"]=array();
 		$parsedParams["searchterm"]=array();
-		$parsedParams["urlparams"]=array();
 		$parsedParams["sortby"]="";
 		
 		foreach ($this->params['url'] as $key => $val) {
@@ -210,9 +212,6 @@ class PhotosController extends AppController {
 			
 			switch ($parsedParams["format"]) 
 			{
-				case "html": 
-					echo "<br />STATUS:<b><font color='green'>&nbsp;OK - Errorcode 200</font><b><br /><br />";
-					break;
 				case "img":
 					$this->render('\\'.$model.'s\img\index','\img\default',null);
 					break;
@@ -236,19 +235,13 @@ class PhotosController extends AppController {
 		else
 		{
 			$this->set("results",null);
-			$this->render('\errors\invalide_params','default',null);
+			//$this->render('\errors\invalide_params','default',null);
 		}
-	}
-
-	function view($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid photo', true));
-			$this->redirect(array('action' => 'index'));
-		}
-		$this->set('photo', $this->Photo->read(null, $id));
 	}
 
 	function add() {
+		echo "TEST add";
+		/*
 		if (!empty($this->data)) {
 			$this->Photo->create();
 			if ($this->Photo->save($this->data)) {
@@ -260,9 +253,12 @@ class PhotosController extends AppController {
 		}
 		$users = $this->Photo->User->find('list');
 		$this->set(compact('users'));
+		*/
 	}
 
-	function edit($id = null) {
+	function edit() {
+		echo "TEST edit";
+		/*
 		if (!$id && empty($this->data)) {
 			$this->Session->setFlash(__('Invalid photo', true));
 			$this->redirect(array('action' => 'index'));
@@ -280,9 +276,12 @@ class PhotosController extends AppController {
 		}
 		$users = $this->Photo->User->find('list');
 		$this->set(compact('users'));
+		*/
 	}
 
-	function delete($id = null) {
+	function delete() {
+		echo "TEST del";
+		/*
 		if (!$id) {
 			$this->Session->setFlash(__('Invalid id for photo', true));
 			$this->redirect(array('action'=>'index'));
@@ -293,6 +292,7 @@ class PhotosController extends AppController {
 		}
 		$this->Session->setFlash(__('Photo was not deleted', true));
 		$this->redirect(array('action' => 'index'));
+		*/
 	}
 }
 ?>

@@ -1,10 +1,9 @@
 ﻿<?php 
-	if($results){
-		$xs = $jsonbuilder->photosToJson($results);
-		?><center><textarea style="height:400px; width:96%; font-size:10pt; overflow:auto;" readOnly="readOnly"><?php echo $xs;?></textarea></center><?php
+	$model = $this->params["controller"];
+	header('Content-Disposition: attachment; filename="'.$model.'"'); 
+	if($results)
+	{	// loading helper "xmlbuilder" and convert db result array to json structure
+		echo $jsonbuilder->convertToJson($results, $model);
 	}
-	else 
-	{
-		?><br /><b><font color='red'>&nbsp;No comment found that matched the search criteria. - 404 Error</font><b><br /><?php
-	}
+	else header("HTTP/1.0 404 Not Found");
 ?>

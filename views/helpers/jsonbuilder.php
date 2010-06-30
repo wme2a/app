@@ -1,6 +1,22 @@
 <?php
 class JsonbuilderHelper extends AppHelper {
 		
+	function convertToJson($results, $model)
+	{
+		switch ($model) {
+			case "photos":
+				return $this->output($this->photosToJson($results));
+			case "comments":
+				return $this->output($this->commentsToJson($results));
+			case "tags":
+				return $this->output($this->tagsToJson($results));
+			case "ratings":
+				return $this->output($this->ratingsToJson($results));
+			case "users":
+				return $this->output($this->usersToJson($results));
+		}
+	}
+		
 	function photosToJson($results) 
 	{	
 		/*	JSON Object	
@@ -27,10 +43,10 @@ class JsonbuilderHelper extends AppHelper {
 			}
 		}
 		*/
+		
+		$json = array();
 		if (sizeof($results)>0)
 		{
-			$json = array();
-			
 			foreach ($results as $row) {
 				$props = array();
 				$props["id"] = intval($row['Photo']['id']);
@@ -56,8 +72,8 @@ class JsonbuilderHelper extends AppHelper {
 				//array_push($json, array("photo" => $props)); // style like JSON of example WS
 			}
 		}
-		return $this->output(json_encode($json)); // style like JSON definition above
-		//return $this->output(json_encode(array("photos" => $json))); // style like JSON of example WS
+		return json_encode($json); // style like JSON definition above
+		//return json_encode(array("comments" => $json)); style like JSON of example WS
 	}
 	
 	function commentsToJson($results) 
@@ -76,13 +92,15 @@ class JsonbuilderHelper extends AppHelper {
 				"comment":{"type":"string","description":"The body of this comment."}
 			}
 		}
-		*/		
+		*/
+		
+		$json = array();	
 		if (sizeof($results)>0)
 		{
 			$json = array();
 			foreach ($results as $r) {
 				$properties = array();
-				$properties["id"]=intval($r['Comment']['id']);
+				$properties["id"] = intval($r['Comment']['id']);
 				$properties["title"] = $r['Comment']['title'] != null ? utf8_encode($r['Comment']['title']) : null;
 				$properties["user"] = $r['Comment']['user_id'] != null ? intval($r['Comment']['user_id']) : null;
 				$properties["photo"] = intval($r['Comment']['photo_id']);
@@ -93,8 +111,8 @@ class JsonbuilderHelper extends AppHelper {
 				//array_push($json, array("comment" => $properties)); style like JSON of example WS
 			}
 		}
-		return $this->output(json_encode($json)); // style like JSON definition above
-		//return $this->output(json_encode(array("comments" => $json))); style like JSON of example WS
+		return json_encode($json); // style like JSON definition above
+		//return json_encode(array("comments" => $json)); style like JSON of example WS
 	}
 	
 	function tagsToJson($results) 
@@ -104,7 +122,7 @@ class JsonbuilderHelper extends AppHelper {
 		{
 		
 		}
-		return $this->output(json_encode($json));
+		return json_encode($json); // style like JSON definition above
 	}
 	
 	function ratingsToJson($results) 
@@ -114,7 +132,7 @@ class JsonbuilderHelper extends AppHelper {
 		{
 	
 		}
-		return $this->output(json_encode($json));
+		return json_encode($json); // style like JSON definition above
 	}
 	
 	function usersToJson($results) 
@@ -124,7 +142,7 @@ class JsonbuilderHelper extends AppHelper {
 		{
 
 		}
-		return $this->output(json_encode($json));
+		return json_encode($json); // style like JSON definition above
 	}
 
 }

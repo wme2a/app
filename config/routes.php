@@ -31,4 +31,11 @@
  * ...and connect the rest of 'Pages' controller's urls.
  */
 	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
-// added for XML and JSON ext	
+/**
+ * REST Routing
+ */
+	Router::connect("/:controller", array("action" => "index", "[method]" => "GET"));
+	Router::connect("/:controller", array("action" => "add", "[method]" => "PUT"));
+	Router::connect("/:controller", array("action" => "edit", "[method]" => "POST"));
+	Router::connect("/:controller", array("action" => "delete", "[method]" => "DELETE"));
+	

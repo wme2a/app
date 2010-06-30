@@ -1,11 +1,12 @@
 ﻿<?php
-class CommentsController extends AppController {
+class CommentsController extends AppController
+{
 
-    var $name = "Comments";
-	var $components = array('RequestHandler');
+    var $name = 'Comments';
 	var $helpers = array('Xmlbuilder','Jsonbuilder');
 	
-	function index() {
+	function index() 
+	{
 	
 		// URL Beispiele
 		// http://localhost/cakephp/comments?id=2
@@ -21,16 +22,18 @@ class CommentsController extends AppController {
 			"format" => array("xml","json")
 			);
 			
-		$invalidParams=false;
-		$model = " ";
+		$invalidParams = false;
+		$model = "";
 		$urlParams = array();
 		
-		$parsedParams["format"]="html";
+		// kind of default settings spec
+		$parsedParams=array();
+		$parsedParams["format"]="xml";
 		$parsedParams["urlparams"]=array();
 		
 		foreach ($this->params['url'] as $key => $val) {
 			if ($key=="url") {
-				$model=ucfirst(preg_replace('/[^a-z]/','',strtolower($val))); // first letter uppercase
+				$model=ucfirst(preg_replace('/[^a-z]/','',strtolower($val)));
 				$model=substr($model,0,strlen($model)-1);
 			}
 			else {
@@ -51,7 +54,6 @@ class CommentsController extends AppController {
 								if (in_array($val, $allowedCtrlParams["format"]))
 								{
 									$parsedParams["format"] = $val;
-									if (array_key_exists('ext', $this->params['url'])) $this->params['url']['ext'] = $parsedParams["format"];
 								}
 								else 
 									$invalidParams = true;	
@@ -59,8 +61,8 @@ class CommentsController extends AppController {
 							}
 								
 							case "apikey":
-							{ 	//TODO
-								//echo $key . " = " . $val . "<br />";
+							{ 	
+								// has not to be implemented
 								break;
 							}
 						}
@@ -79,7 +81,6 @@ class CommentsController extends AppController {
 			if ($urlParams) 
 			{
 				$parsedParams["urlparams"] = array('AND' => $urlParams);
-				//echo var_dump($parsedParams["urlparams"])."<br />";
 			}
 			
 			// conditions/where-clause available OR null
@@ -90,37 +91,28 @@ class CommentsController extends AppController {
 			else $conditions = null; 
 				
 			// db request
-			$result = $this->Comment->find('all', array(
+			$results = $this->Comment->find('all', array(
 				'conditions' => $conditions,
 			));
 			
+			// setting vars for views
+			$this->set("results",$results);
+			
 			switch ($parsedParams["format"]) 
 			{
-				case "html": 
-				{
-					echo "<br />STATUS:<b><font color='green'>&nbsp;OK</font><b><br /><br />";
-					$this->set("results",$result);
-					break;
-				}
+			
 				case "json": 
-					//TODO
-					$this->set("results",$result);
 					$this->render('\\'.$model.'s\json\index','\json\default',null);
 					break;
 				default: //"xml"
-					$this->set("results",$result);
 					$this->render('\\'.$model.'s\xml\index','\xml\default',null);
-					break;
-					//$this->layout="xml";
-					//$this->redirect("/comments/index");
-					//$this->autoRender = false;
 					break;
 			}
 		}
 		else
 		{
-			echo "<br />STATUS:<b><font color='red'>&nbsp;INVALID-PARAMS !!</font><b><br /><br />";
 			$this->set("results",null);
+			//$this->render('\errors\invalide_params','default',null);
 		}
 	}
 }

@@ -3,6 +3,22 @@ class XmlbuilderHelper extends AppHelper {
 		
 	var $helpers = array('Xml');
 	
+	function convertToXml($results, $model)
+	{
+		switch ($model) {
+			case "photos":
+				return $this->output($this->photosToXml($results));
+			case "comments":
+				return $this->output($this->commentsToXml($results));
+			case "tags":
+				return $this->output($this->tagsToXml($results));
+			case "ratings":
+				return $this->output($this->ratingsToXml($results));
+			case "users":
+				return $this->output($this->usersToXml($results));
+		}
+	}
+	
 	function photosToXml($results) 
 	{	
 		$xs = "";
@@ -60,7 +76,7 @@ class XmlbuilderHelper extends AppHelper {
 			$xs .=  $x->closeElem();
 			$xs = $this->formatOutput($xs);
 		}
-		return $this->output($xs);
+		return $xs;
 	}
 	
 	function commentsToXml($results) 
@@ -83,7 +99,7 @@ class XmlbuilderHelper extends AppHelper {
 				$xs .=  $x->closeElem();
 				$xs = $this->formatOutput($xs);
 		}
-		return $this->output($xs);
+		return $xs;
 	}
 	
 	function tagsToXml($results) 
@@ -98,7 +114,7 @@ class XmlbuilderHelper extends AppHelper {
 			//place some xml structure here ...
 			$xs = $this->formatOutput($xs);
 		}
-		return $this->output($xs);
+		return $xs;
 	}
 	
 	function ratingsToXml($results) 
@@ -113,7 +129,7 @@ class XmlbuilderHelper extends AppHelper {
 			//place some xml structure here ...
 			$xs = $this->formatOutput($xs);
 		}
-		return $this->output($xs);
+		return $xs;
 	}
 	
 	function usersToXml($results) 
@@ -128,7 +144,7 @@ class XmlbuilderHelper extends AppHelper {
 			//place some xml structure here ...
 			$xs = $this->formatOutput($xs);
 		}
-		return $this->output($xs);
+		return $xs;
 	}
 	
 	function formatOutput($xmlstr)

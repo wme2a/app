@@ -1,7 +1,6 @@
 <?php
 class Comment extends AppModel {
-
-	var $name = "Comments";
+	var $name = 'Comment';
 	
 	var $belongsTo = array(
 		'Photo' => array(
