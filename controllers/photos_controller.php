@@ -61,8 +61,8 @@ class PhotosController extends AppController
 								$val = preg_replace('/[^a-zA-Z0-9öÖüÜäÄß_% ]/','',$val);
 								//$val = str_replace(' ','%', $val);
 								$parsedParams["searchterm"] = array('OR' => array(
-									array($model.'.title' => '%'.$val.'%'),
-									array($model.'.description' => '%'.$val.'%')
+									array($model.".title LIKE '%".$val."%'"),
+									array($model.".description LIKE '%".$val."%'")
 									)
 								);
 								break;
@@ -166,11 +166,11 @@ class PhotosController extends AppController
 			
 			// conditions/where-clause available OR null
 			if ($parsedParams["urlparams"] || $parsedParams["searchterm"] || $parsedParams["tags"])
-				$conditions = array('AND' => array(
+				$conditions = $parsedParams["searchterm"]; /*array('AND' => array(
 					$parsedParams["urlparams"],
-					$parsedParams["searchterm"],
+					$parsedParams["searchterm"]//,
 					$parsedParams["tags"]
-					));
+					));*/
 			else $conditions = null; 
 			
 			// db request
