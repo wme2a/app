@@ -6,7 +6,7 @@ class CommentsController extends AppController
 	
 	function index() 
 	{
-	
+		
 		// URL Beispiele
 		// http://localhost/cakephp/comments?id=2
 		// http://localhost/cakephp/comments?photoid=1
@@ -109,6 +109,21 @@ class CommentsController extends AppController
 			}
 		}
 		else $this->set("results",null);
+	}
+	
+	function add() 
+	{
+		App::import('Helper', 'Xmlbuilder');
+		$x = new XmlbuilderHelper();
+		$xs = $x->validate("<bla/>"); // file stream source
+		echo $xs;
+		
+		echo "TEST add";
+	}
+
+	function delete() 
+	{
+		echo "TEST del";
 	}
 }
 ?>

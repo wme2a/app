@@ -29,12 +29,13 @@ class PhotosController extends AppController
 		
 		// kind of default settings spec
 		$parsedParams=array();
-		$parsedParams["format"]="xml";
+		$parsedParams["format"]="html";
 		$parsedParams["urlparams"]=array();
 		$parsedParams["offset"]=$allowedCtrlParams["offset"];
 		$parsedParams["limit"]=$allowedCtrlParams["limit"];
 		$parsedParams["tags"]=array();
 		$parsedParams["searchterm"]=array();
+		$parsedParams["geoframe"]=array();
 		$parsedParams["sortby"]="";
 		
 		foreach ($this->params['url'] as $key => $val) {
@@ -85,7 +86,16 @@ class PhotosController extends AppController
 							}
 							case "geoframe":
 							{	
-								//TODO
+								// style to parse: minLatitude,minLongitude,maxLatitude,maxLongitude
+								$val = preg_replace('/[^0-9.,]/','',$val);
+								$geoframe = preg_split('/,/',$val,-1,PREG_SPLIT_NO_EMPTY);
+								if (sizeof($geoframe) == 4 && $geoframe[0] < $geoframe[2] && $geoframe[1] < $geoframe[3]) 
+								{
+									$parsedParams["geoframe"] = array('AND' => array(
+										"Photo.geo_lat BETWEEN ".doubleval($geoframe[0])." AND ".doubleval($geoframe[2])."",
+										"Photo.geo_long BETWEEN ".doubleval($geoframe[1])." AND ".doubleval($geoframe[3]).""
+									));
+								}
 								break;
 							}
 							case "sortby":
@@ -167,7 +177,8 @@ class PhotosController extends AppController
 				array("Photo.upload_complete" => 1),
 				$parsedParams["urlparams"],
 				$parsedParams["searchterm"],
-				$parsedParams["tags"]
+				$parsedParams["tags"],
+				$parsedParams["geoframe"]
 				));
 			
 			// db request
@@ -177,7 +188,6 @@ class PhotosController extends AppController
 				'order' => $parsedParams["sortby"],
 				'group' => array($model.'.id'),
 				'limit' => $parsedParams["limit"]
-				//,'page' => 2
 			));
 			
 			// offset : delete from results position 0 to offset 
@@ -232,7 +242,7 @@ class PhotosController extends AppController
 					$this->render('\\'.$model.'s\json\index','\json\default',null);
 					break;
 				default: //"xml"
-					$this->render('\\'.$model.'s\xml\index','\xml\default',null);
+					$this->render('\\'.$model.'s\xml\index','xml\default',null);
 					break;
 			}
 		}
