@@ -106,7 +106,6 @@ class JsonbuilderHelper extends AppHelper {
 				$properties["photo"] = intval($r['Comment']['photo_id']);
 				$properties["created"] = strtotime($r['Comment']['created']);
 				$properties["comment"] = utf8_encode($r['Comment']['comment_text']);
-				$properties["mod"] = $r['Comment']['modified'];
 				array_push($json, $properties); // style like JSON definition above
 				//array_push($json, array("comment" => $properties)); style like JSON of example WS
 			}
