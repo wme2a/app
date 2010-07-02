@@ -6,7 +6,6 @@ class PhotosController extends AppController
 
 	function index() 
 	{
-		
 		// URL Beispiele
 		// http://localhost/cakephp/photos?id=2
 		// http://localhost/cakephp/photos?tags=winter,eis&limit=10
@@ -250,59 +249,30 @@ class PhotosController extends AppController
 	}
 
 	function add() {
-		echo "TEST add";
-		/*
-		if (!empty($this->data)) {
-			$this->Photo->create();
-			if ($this->Photo->save($this->data)) {
-				$this->Session->setFlash(__('The photo has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The photo could not be saved. Please, try again.', true));
-			}
-		}
-		$users = $this->Photo->User->find('list');
-		$this->set(compact('users'));
-		*/
+		echo "TODO add";
 	}
 
 	function edit() {
-		echo "TEST edit";
-		/*
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid photo', true));
-			$this->redirect(array('action' => 'index'));
-		}
-		if (!empty($this->data)) {
-			if ($this->Photo->save($this->data)) {
-				$this->Session->setFlash(__('The photo has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The photo could not be saved. Please, try again.', true));
-			}
-		}
-		if (empty($this->data)) {
-			$this->data = $this->Photo->read(null, $id);
-		}
-		$users = $this->Photo->User->find('list');
-		$this->set(compact('users'));
-		*/
+		echo "TODO edit";
 	}
 
-	function delete() {
-		echo "TEST del";
-		/*
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for photo', true));
-			$this->redirect(array('action'=>'index'));
+	function delete() 
+	{
+		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
+		
+		$result = $this->Photo->findById($id); // just one result
+		
+		if ($id && $this->Photo->delete($id, true)) // delete cascaded
+		{ 
+			unlink(WWW_ROOT."img\img\\".$result['Photo']['original_filename']);
+			unlink(WWW_ROOT."img\smallimg\\".$result['Photo']['original_filename']);
+			unlink(WWW_ROOT."img\tinyimg\\".$result['Photo']['original_filename']);
+			unlink(WWW_ROOT."img\thumbnail\\".$result['Photo']['original_filename']);
+			return true;
 		}
-		if ($this->Photo->delete($id)) {
-			$this->Session->setFlash(__('Photo deleted', true));
-			$this->redirect(array('action'=>'index'));
-		}
-		$this->Session->setFlash(__('Photo was not deleted', true));
-		$this->redirect(array('action' => 'index'));
-		*/
+		header("HTTP/1.0 404 Not Found");
+		echo "";
+		return false;
 	}
 }
 ?>
