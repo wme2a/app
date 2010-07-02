@@ -1,7 +1,6 @@
 <?php
 class PhotosController extends AppController
 {
-
 	var $name = 'Photos';
 	var $helpers = array('Xmlbuilder','Jsonbuilder');
 
@@ -163,15 +162,13 @@ class PhotosController extends AppController
 			// for offset : NEW_limit = limit + offset
 			if ($parsedParams["offset"] > 0 && $parsedParams["limit"] > 0) $parsedParams["limit"] += $parsedParams["offset"];
 				
-			
-			// conditions/where-clause available OR null
-			if ($parsedParams["urlparams"] || $parsedParams["searchterm"] || $parsedParams["tags"])
-				$conditions = $parsedParams["searchterm"]; /*array('AND' => array(
-					$parsedParams["urlparams"],
-					$parsedParams["searchterm"]//,
-					$parsedParams["tags"]
-					));*/
-			else $conditions = null; 
+			// conditions/where-clause
+			$conditions = array('AND' => array(
+				array("Photo.upload_complete" => 1),
+				$parsedParams["urlparams"],
+				$parsedParams["searchterm"],
+				$parsedParams["tags"]
+				));
 			
 			// db request
 			$results = $this->Photo->find('all', array(
@@ -239,11 +236,7 @@ class PhotosController extends AppController
 					break;
 			}
 		}
-		else
-		{
-			$this->set("results",null);
-			//$this->render('\errors\invalide_params','default',null);
-		}
+		else $this->set("results",null);
 	}
 
 	function add() {

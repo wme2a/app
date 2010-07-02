@@ -107,7 +107,7 @@ class XmlbuilderHelper extends AppHelper {
 		$xs = "";
 		if (sizeof($results)>0)
 		{
-			$x = $xml;
+			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 			//TODO
@@ -122,7 +122,7 @@ class XmlbuilderHelper extends AppHelper {
 		$xs = "";
 		if (sizeof($results)>0)
 		{
-			$x = $xml;
+			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 			//TODO
@@ -137,7 +137,7 @@ class XmlbuilderHelper extends AppHelper {
 		$xs = "";
 		if (sizeof($results)>0)
 		{
-			$x = $xml;
+			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 			//TODO
@@ -151,19 +151,19 @@ class XmlbuilderHelper extends AppHelper {
 	{
 		$d = new DOMDocument('1.0', 'utf-8');
 		$d->loadXML(utf8_encode($xmlstr));
-		$d->formatOutput=true;
+		$d->formatOutput = true;
 		return $d->saveXML();
 	}
 
-	function validate($xmlstr, $xmlschema='')
+	function validate($xmlstr, $xsd_path = null)
 	{
 		if (strlen($xmlstr)>0)
 		{
+			$xsd_path = $xsd_path == null ? WWW_ROOT."/files/photonpainter.xsd" : $xsd_path; // if not set @ function call, it sets standard xsd path
 			$xdoc = new DOMDocument('1.0', 'utf-8');
-			$xmlschema = '../webroot/files/photonpainter.xsd';
 			$xdoc->loadXML($xmlstr);
-			//Validate the XML file against the schema
-			if ($xdoc->schemaValidate($xmlschema)) {
+			// validate the XML file against the schema XSD file
+			if ($xdoc->schemaValidate($xsd_path)) {
 				return $this->output(true); // is valid
 			}
 		}

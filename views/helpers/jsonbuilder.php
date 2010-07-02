@@ -1,6 +1,8 @@
 <?php
 class JsonbuilderHelper extends AppHelper {
 		
+	var $helpers = array("Html");
+	
 	function convertToJson($results, $model)
 	{
 		switch ($model) {
@@ -50,7 +52,7 @@ class JsonbuilderHelper extends AppHelper {
 			foreach ($results as $row) {
 				$props = array();
 				$props["id"] = intval($row['Photo']['id']);
-				$props["uri"] = utf8_encode(""); // !!! TODO $row['Photo']['original_filename']
+				$props["uri"] = utf8_encode($this->Html->url('/photos?format=img&id='.$row['Photo']['id'])); // !!! TODO $row['Photo']['original_filename']
 				$props["title"] = utf8_encode($row['Photo']['title']);
 				$props["created"] = strtotime($row['Photo']['created']);
 				$props["width"] = intval($row['Photo']['width']);

@@ -1,7 +1,6 @@
 <?php
 class CommentsController extends AppController
 {
-
     var $name = 'Comments';
 	var $helpers = array('Xmlbuilder','Jsonbuilder');
 	
@@ -109,11 +108,7 @@ class CommentsController extends AppController
 					break;
 			}
 		}
-		else
-		{
-			$this->set("results",null);
-			//$this->render('\errors\invalide_params','default',null);
-		}
+		else $this->set("results",null);
 	}
 }
 ?>
