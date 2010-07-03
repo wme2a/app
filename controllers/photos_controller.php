@@ -248,12 +248,67 @@ class PhotosController extends AppController
 		else $this->set("results",null);
 	}
 
-	function add() {
-		echo "TODO add";
+	function add() 
+	{
+		echo "TODO: add()";
 	}
 
-	function edit() {
-		echo "TODO edit";
+	function edit() 
+	{
+		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
+		
+		if ($id && $this->Photo->findById($id)) // exists ? find photo /w id
+		{
+			$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="100" title="Catedral del buen pastor" width="1200" height="800" geo_lat="43.31721809" geo_long="-1.98207736000229" aperture="F/8" exposuretime="1/250s" focallength="24mm" views="0" user_name="MaNi" author="1"><pp:description>bla Blub</pp:description></pp:photo>';
+			//$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" title="Catedral del buen pastor" user_name="Keksi"><pp:description>bla Blub</pp:description></pp:photo>';
+			//$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter"><pp:description></pp:description></pp:photo>';
+			
+			$model = ucfirst(substr($this->params["controller"],0,-1));
+			
+			App::import('Helper', 'Xmlbuilder');
+			$x = new XmlbuilderHelper();
+			if ($x->validate($xml_test)) // validate file stream source
+			{
+				$doc = new DOMDocument();
+				$doc->preserveWhiteSpace = false;
+				$doc->loadXML($xml_test);
+				
+				$xpath = new DOMXPath($doc);
+				$tag = $xpath->query('//pp:photo')->item(0); // tag to write to db
+				
+				if ($tag) 
+				{
+					$edit = array();
+					foreach ($tag->attributes as $k => $v) 
+					{
+						$edit[$model][$k] = $v->textContent; 
+					}
+					$edit[$model]["id"] = $id; // id from request params
+					if ($tag->nodeValue != null) $edit[$model]["description"]  = $tag->nodeValue; // if null do not edit to fail @ save
+					$edit[$model]["user_id"] = array_key_exists("author",$edit[$model]) ? $edit[$model]["author"] : null; // to force new id in db with create(); // to force new id in db with create()
+					unset($edit[$model]["author"]);
+					
+					if ($this->Photo->save($edit)) // new id & save to db
+					{
+						$result = $this->Photo->findById($id);
+						if ($result 
+							&& $result[$model]["upload_complete"] == 0
+							&& $result[$model]["title"] != null 
+							&& $result[$model]["description"] != null 
+							&& $result[$model]["user_name"] != null)
+						{
+							$this->Photo->saveField('upload_complete', 1); // to show that pic is uploaded & metadata is set
+						}
+						
+						header("HTTP/1.0 201 Created");
+						return true;
+					}
+				}
+			}
+		}
+		header("HTTP/1.0 412 Precondition Failed");
+		echo "";	
+		return false;
 	}
 
 	function delete() 

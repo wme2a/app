@@ -112,7 +112,7 @@ class CommentsController extends AppController
 	
 	function add() 
 	{
-		$xml_test='<?xml version="1.0" encoding="UTF-8"?><pp:com_ments xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter"><pp:comment id="4" photo_id="2" user_id="2" title="Sparkurs">Dass die Uni so sehr sparen muss...</pp:comment></pp:com_ments>';
+		$xml_test='<pp:comment xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="4" photo_id="2" user_id="2" title="Sparkurs">Dass die Uni so sehr sparen muss...</pp:comment>';
 		
 		$model = ucfirst(substr($this->params["controller"],0,-1));
 		
@@ -125,23 +125,24 @@ class CommentsController extends AppController
 			$doc->loadXML($xml_test);
 			
 			$xpath = new DOMXPath($doc);
-			$tag = $xpath->query('//pp:comments/pp:comment')->item(0); // tag to write to db
+			$tag = $xpath->query('//pp:comment')->item(0); // tag to write to db
 			
 			if ($tag) 
 			{
-				$update = array();
+				$add = array();
 				foreach ($tag->attributes as $k => $v) 
 				{
-					$update[$model][$k] = $v->textContent; 
+					$add[$model][$k] = $v->textContent; 
 				}
-				$update[$model]["comment_text"] = $tag->nodeValue; 
-				$update[$model]["id"] = null; // to force new id in db with create()
-
-				//$this->Comment->create(); // create(): generates new id, if isn't set or is null
-				//$this->Comment->save($update); // save to db
+				$add[$model]["id"] = null; // to force new id in db with create()
+				$add[$model]["comment_text"] = $tag->nodeValue; 
 				
-				header("HTTP/1.0 201 Created");
-				return true;
+				$this->Comment->create(); // create(): generates new id, if isn't set or is null
+				if ($this->Comment->save($add)) // save to db
+				{
+					header("HTTP/1.0 201 Created");
+					return true;
+				}
 			}
 		} 
 		header("HTTP/1.0 412 Precondition Failed");
