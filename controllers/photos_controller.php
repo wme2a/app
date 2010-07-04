@@ -1,13 +1,11 @@
 <?php
 class PhotosController extends AppController
 {
-
 	var $name = 'Photos';
 	var $helpers = array('Xmlbuilder','Jsonbuilder');
 
 	function index() 
 	{
-		
 		// URL Beispiele
 		// http://localhost/cakephp/photos?id=2
 		// http://localhost/cakephp/photos?tags=winter,eis&limit=10
@@ -30,12 +28,13 @@ class PhotosController extends AppController
 		
 		// kind of default settings spec
 		$parsedParams=array();
-		$parsedParams["format"]="xml";
+		$parsedParams["format"]="html";
 		$parsedParams["urlparams"]=array();
 		$parsedParams["offset"]=$allowedCtrlParams["offset"];
 		$parsedParams["limit"]=$allowedCtrlParams["limit"];
 		$parsedParams["tags"]=array();
 		$parsedParams["searchterm"]=array();
+		$parsedParams["geoframe"]=array();
 		$parsedParams["sortby"]="";
 		
 		foreach ($this->params['url'] as $key => $val) {
@@ -86,7 +85,16 @@ class PhotosController extends AppController
 							}
 							case "geoframe":
 							{	
-								//TODO
+								// style to parse: minLatitude,minLongitude,maxLatitude,maxLongitude
+								$val = preg_replace('/[^0-9.,]/','',$val);
+								$geoframe = preg_split('/,/',$val,-1,PREG_SPLIT_NO_EMPTY);
+								if (sizeof($geoframe) == 4 && $geoframe[0] < $geoframe[2] && $geoframe[1] < $geoframe[3]) 
+								{
+									$parsedParams["geoframe"] = array('AND' => array(
+										"Photo.geo_lat BETWEEN ".doubleval($geoframe[0])." AND ".doubleval($geoframe[2])."",
+										"Photo.geo_long BETWEEN ".doubleval($geoframe[1])." AND ".doubleval($geoframe[3]).""
+									));
+								}
 								break;
 							}
 							case "sortby":
@@ -163,15 +171,14 @@ class PhotosController extends AppController
 			// for offset : NEW_limit = limit + offset
 			if ($parsedParams["offset"] > 0 && $parsedParams["limit"] > 0) $parsedParams["limit"] += $parsedParams["offset"];
 				
-			
-			// conditions/where-clause available OR null
-			if ($parsedParams["urlparams"] || $parsedParams["searchterm"] || $parsedParams["tags"])
-				$conditions = $parsedParams["searchterm"]; /*array('AND' => array(
-					$parsedParams["urlparams"],
-					$parsedParams["searchterm"]//,
-					$parsedParams["tags"]
-					));*/
-			else $conditions = null; 
+			// conditions/where-clause
+			$conditions = array('AND' => array(
+				array("Photo.upload_complete" => 1),
+				$parsedParams["urlparams"],
+				$parsedParams["searchterm"],
+				$parsedParams["tags"],
+				$parsedParams["geoframe"]
+				));
 			
 			// db request
 			$results = $this->Photo->find('all', array(
@@ -180,7 +187,6 @@ class PhotosController extends AppController
 				'order' => $parsedParams["sortby"],
 				'group' => array($model.'.id'),
 				'limit' => $parsedParams["limit"]
-				//,'page' => 2
 			));
 			
 			// offset : delete from results position 0 to offset 
@@ -235,71 +241,93 @@ class PhotosController extends AppController
 					$this->render('\\'.$model.'s\json\index','\json\default',null);
 					break;
 				default: //"xml"
-					$this->render('\\'.$model.'s\xml\index','\xml\default',null);
+					$this->render('\\'.$model.'s\xml\index','xml\default',null);
 					break;
 			}
 		}
-		else
+		else $this->set("results",null);
+	}
+
+	function add() 
+	{
+		echo "TODO: add()";
+	}
+
+	function edit() 
+	{
+		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
+		
+		if ($id && $this->Photo->findById($id)) // exists ? find photo /w id
 		{
-			$this->set("results",null);
-			//$this->render('\errors\invalide_params','default',null);
-		}
-	}
-
-	function add() {
-		echo "TEST add";
-		/*
-		if (!empty($this->data)) {
-			$this->Photo->create();
-			if ($this->Photo->save($this->data)) {
-				$this->Session->setFlash(__('The photo has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The photo could not be saved. Please, try again.', true));
+			$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="100" title="Catedral del buen pastor" width="1200" height="800" geo_lat="43.31721809" geo_long="-1.98207736000229" aperture="F/8" exposuretime="1/250s" focallength="24mm" views="0" user_name="MaNi" author="1"><pp:description>bla Blub</pp:description></pp:photo>';
+			//$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" title="Catedral del buen pastor" user_name="Keksi"><pp:description>bla Blub</pp:description></pp:photo>';
+			//$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter"><pp:description></pp:description></pp:photo>';
+			
+			$model = ucfirst(substr($this->params["controller"],0,-1));
+			
+			App::import('Helper', 'Xmlbuilder');
+			$x = new XmlbuilderHelper();
+			if ($x->validate($xml_test)) // validate file stream source
+			{
+				$doc = new DOMDocument();
+				$doc->preserveWhiteSpace = false;
+				$doc->loadXML($xml_test);
+				
+				$xpath = new DOMXPath($doc);
+				$tag = $xpath->query('//pp:photo')->item(0); // tag to write to db
+				
+				if ($tag) 
+				{
+					$edit = array();
+					foreach ($tag->attributes as $k => $v) 
+					{
+						$edit[$model][$k] = $v->textContent; 
+					}
+					$edit[$model]["id"] = $id; // id from request params
+					if ($tag->nodeValue != null) $edit[$model]["description"]  = $tag->nodeValue; // if null do not edit to fail @ save
+					$edit[$model]["user_id"] = array_key_exists("author",$edit[$model]) ? $edit[$model]["author"] : null; // to force new id in db with create(); // to force new id in db with create()
+					unset($edit[$model]["author"]);
+					
+					if ($this->Photo->save($edit)) // new id & save to db
+					{
+						$result = $this->Photo->findById($id);
+						if ($result 
+							&& $result[$model]["upload_complete"] == 0
+							&& $result[$model]["title"] != null 
+							&& $result[$model]["description"] != null 
+							&& $result[$model]["user_name"] != null)
+						{
+							$this->Photo->saveField('upload_complete', 1); // to show that pic is uploaded & metadata is set
+						}
+						
+						header("HTTP/1.0 201 Created");
+						return true;
+					}
+				}
 			}
 		}
-		$users = $this->Photo->User->find('list');
-		$this->set(compact('users'));
-		*/
+		header("HTTP/1.0 412 Precondition Failed");
+		echo "";	
+		return false;
 	}
 
-	function edit() {
-		echo "TEST edit";
-		/*
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid photo', true));
-			$this->redirect(array('action' => 'index'));
+	function delete() 
+	{
+		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
+		
+		$result = $this->Photo->findById($id); // just one result
+		
+		if ($id && $this->Photo->delete($id, true)) // delete cascaded
+		{ 
+			unlink(WWW_ROOT."img\img\\".$result['Photo']['original_filename']);
+			unlink(WWW_ROOT."img\smallimg\\".$result['Photo']['original_filename']);
+			unlink(WWW_ROOT."img\tinyimg\\".$result['Photo']['original_filename']);
+			unlink(WWW_ROOT."img\thumbnail\\".$result['Photo']['original_filename']);
+			return true;
 		}
-		if (!empty($this->data)) {
-			if ($this->Photo->save($this->data)) {
-				$this->Session->setFlash(__('The photo has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The photo could not be saved. Please, try again.', true));
-			}
-		}
-		if (empty($this->data)) {
-			$this->data = $this->Photo->read(null, $id);
-		}
-		$users = $this->Photo->User->find('list');
-		$this->set(compact('users'));
-		*/
-	}
-
-	function delete() {
-		echo "TEST del";
-		/*
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for photo', true));
-			$this->redirect(array('action'=>'index'));
-		}
-		if ($this->Photo->delete($id)) {
-			$this->Session->setFlash(__('Photo deleted', true));
-			$this->redirect(array('action'=>'index'));
-		}
-		$this->Session->setFlash(__('Photo was not deleted', true));
-		$this->redirect(array('action' => 'index'));
-		*/
+		header("HTTP/1.0 404 Not Found");
+		echo "";
+		return false;
 	}
 }
 ?>

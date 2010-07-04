@@ -27,6 +27,8 @@
  * to use (in this case, /app/views/pages/home.ctp)...
  */
 	Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home'));
+	Router::connect('/photonpainter.xsd', array('controller' => 'pages', 'action' => 'display', WWW_ROOT.'/files/photonpainter.xsd'));
+	Router::connect('/photonemitter.wadl.xml', array('controller' => 'pages', 'action' => 'display', WWW_ROOT.'/files/photonemitter.wadl.xml'));
 /**
  * ...and connect the rest of 'Pages' controller's urls.
  */

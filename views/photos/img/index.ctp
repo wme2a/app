@@ -1,7 +1,7 @@
 <?php 
 	if ($results) 
 	{	
-		$img_path = "..\webroot\img\\" . $results["imgtype"] . "\\" . $results[0]["Photo"]["original_filename"];
+		$img_path = WWW_ROOT."\img\\" . $results["imgtype"] . "\\" . $results[0]["Photo"]["original_filename"];
 		
 		header('Content-Type: ' . image_type_to_mime_type(exif_imagetype($img_path)));
 		header('Content-Disposition: filename="'.$results[0]["Photo"]["original_filename"].'"'); 

@@ -70,7 +70,7 @@
                         font-weight: normal;
                         opacity: 0.75;
                     }
-                </style></head><body><h1>PhotonEmitter REST API Overview</h1><p>PhotonEmitter is a REST Web Service for Photos</p><ul><li><a href="#resources">Resources</a>
+                </style></head><body><h1>PhotonEmitter REST API Overview</h1><p>PhotonEmitter is a REST Web Service for Photos (<a href="photonemitter.wadl.xml">photonemitter.wadl.xml</a>)</p><ul><li><a href="#resources">Resources</a>
 		<li><a href="#id110311">/photos</a></li>
 		
 		<li><a href="#id110811">/users</a></li>
