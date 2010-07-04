@@ -107,27 +107,27 @@ class XmlbuilderHelper extends AppHelper {
 		$xs = "";
 		if (sizeof($results)>0)
 		{
-			$x = $xml;
+			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
-			//TODO
-			//place some xml structure here ...
-			$xs = $this->formatOutput($xs);
+				$xs .=  $x->elem('pp:tags', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+				$xs .=  $x->closeElem();
+				$xs = $this->formatOutput($xs);
 		}
 		return $xs;
 	}
 	
 	function ratingsToXml($results) 
 	{ 
-		$xs = "";
+		$$xs = "";
 		if (sizeof($results)>0)
 		{
-			$x = $xml;
+			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
-			//TODO
-			//place some xml structure here ...
-			$xs = $this->formatOutput($xs);
+				$xs .=  $x->elem('pp:ratings', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+				$xs .=  $x->closeElem();
+				$xs = $this->formatOutput($xs);
 		}
 		return $xs;
 	}
@@ -137,12 +137,12 @@ class XmlbuilderHelper extends AppHelper {
 		$xs = "";
 		if (sizeof($results)>0)
 		{
-			$x = $xml;
+			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
-			//TODO
-			//place some xml structure here ...
-			$xs = $this->formatOutput($xs);
+				$xs .=  $x->elem('pp:users', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+				$xs .=  $x->closeElem();
+				$xs = $this->formatOutput($xs);
 		}
 		return $xs;
 	}
