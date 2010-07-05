@@ -88,7 +88,7 @@ class XmlbuilderHelper extends AppHelper {
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 				$xs .=  $x->elem('pp:comments', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
-					foreach ($results as $r) {
+				foreach ($results as $r) {
 						$comment_text = $r['Comment']['comment_text']; // set comment_text as/for content
 						unset($r['Comment']['comment_text']); // remove attr comment_text
 						unset($r['Comment']['modified']); // remove attr modified
@@ -97,7 +97,7 @@ class XmlbuilderHelper extends AppHelper {
 						$xs .=  $x->closeElem();
 					}
 				$xs .=  $x->closeElem();
-				$xs = $this->formatOutput($xs);
+			//	$xs = $this->formatOutput($xs);
 		}
 		return $xs;
 	}
@@ -111,6 +111,10 @@ class XmlbuilderHelper extends AppHelper {
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 				$xs .=  $x->elem('pp:tags', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+				foreach ($results as $r) {
+						$xs .=  $x->elem('pp:tag', $r['Tag'], null, false).">"; // $comment_text as content
+						$xs .=  $x->closeElem();
+					}
 				$xs .=  $x->closeElem();
 				$xs = $this->formatOutput($xs);
 		}
@@ -119,13 +123,17 @@ class XmlbuilderHelper extends AppHelper {
 	
 	function ratingsToXml($results) 
 	{ 
-		$$xs = "";
+		$xs = "";
 		if (sizeof($results)>0)
 		{
 			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 				$xs .=  $x->elem('pp:ratings', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+				foreach ($results as $r) {
+						$xs .=  $x->elem('pp:rating', $r['Rating'], null, false).">"; // $comment_text as content
+						$xs .=  $x->closeElem();
+					}
 				$xs .=  $x->closeElem();
 				$xs = $this->formatOutput($xs);
 		}
@@ -140,7 +148,11 @@ class XmlbuilderHelper extends AppHelper {
 			$x = $this->Xml;
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
-				$xs .=  $x->elem('pp:users', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+				$xs .=  $x->elem('pp:users',null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
+			foreach ($results as $r) {
+						$xs .=  $x->elem('pp:user', $r['User'], null, false).">"; // $comment_text as content
+						$xs .=  $x->closeElem();
+					}
 				$xs .=  $x->closeElem();
 				$xs = $this->formatOutput($xs);
 		}
