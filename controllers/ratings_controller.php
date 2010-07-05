@@ -2,8 +2,8 @@
 class RatingsController extends AppController {
 
 	var $name = 'Ratings';
-
 	var $helpers = array('Xmlbuilder','Jsonbuilder');	
+	var $components = array('RequestHandler');
 	function index() 
 	{
 		// URL Beispiele

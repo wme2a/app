@@ -36,8 +36,29 @@
 /**
  * REST Routing
  */
-	Router::connect("/:controller", array("action" => "index", "[method]" => "GET"));
-	Router::connect("/:controller", array("action" => "add", "[method]" => "PUT"));
-	Router::connect("/:controller", array("action" => "edit", "[method]" => "POST"));
-	Router::connect("/:controller", array("action" => "delete", "[method]" => "DELETE"));
+	//Router::connect("/:controller", array("action" => "index", "[method]" => "GET"));
+	//Router::connect("/:controller/:id", array("action" => "add", "[method]" => "PUT"));
+	//Router::connect("/:controller", array("action" => "edit", "[method]" => "POST"));
+	//Router::connect("/:controller", array("action" => "delete", "[method]" => "DELETE")); 
+	Router::connect(
+   		"/users",
+   		array('controller' =>  'users','action' => 'add','[method]' => 'PUT')
+   		);  
+	Router::connect(
+   		"/users/:id",
+   		array('controller' =>  'users','action' => 'delete','[method]' => 'DELETE'),
+   		array('pass' => array('id'),'id' => '[0-9]+')
+   		);
+	Router::connect(
+   		"/ratings",
+   		array('controller' =>  'ratings','action' => 'add','[method]' => 'PUT')
+   		);  
+	Router::connect(
+   		"/ratings/:id",
+   		array('controller' =>  'ratings','action' => 'delete','[method]' => 'DELETE'),
+   		array('pass' => array('id'),'id' => '[0-9]+')
+   		);
+	
+	//Router::mapResources('users');
+	//Router::parseExtensions();
 	

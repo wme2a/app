@@ -3,6 +3,7 @@ class UsersController extends AppController {
 
 	var $name = 'Users';
 	var $helpers = array('Xmlbuilder','Jsonbuilder');
+	var $components = array('RequestHandler');
 	function index() 
 	{
 		// URL Beispiele
@@ -112,9 +113,10 @@ class UsersController extends AppController {
 		}
 	}
 	function add() {
-		if (!empty($this->data)) {
+		$d = $this->data;
+		if (!empty($d)) {
 			$this->User->create();
-			if ($this->User->save($this->data)) {
+			if ($this->User->save($d)) {
 				$this->flash(__('User saved.', true), array('action' => 'index'));
 			} else {
 			}
