@@ -324,19 +324,20 @@ class PhotosController extends AppController
 		
 		if ($id && $this->Photo->findById($id)) // exists ? find photo /w id
 		{
-			$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="100" title="Catedral del buen pastor" width="1200" height="800" geo_lat="43.31721809" geo_long="-1.98207736000229" aperture="F/8" exposuretime="1/250s" focallength="24mm" views="0" user_name="MaNi" author="1"><pp:description>bla Blub</pp:description></pp:photo>';
-			//$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" title="Catedral del buen pastor" user_name="Keksi"><pp:description>bla Blub</pp:description></pp:photo>';
-			//$xml_test='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter"><pp:description></pp:description></pp:photo>';
+			//$xml_str='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="100" title="Catedral del buen pastor" width="1200" height="800" geo_lat="43.31721809" geo_long="-1.98207736000229" aperture="F/8" exposuretime="1/250s" focallength="24mm" views="0" user_name="MaNi" author="1"><pp:description>bla Blub</pp:description></pp:photo>';
+			//$xml_str='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" title="Catedral del buen pastor" user_name="Keksi"><pp:description>bla Blub</pp:description></pp:photo>';
+			//$xml_str='<pp:photo xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter"><pp:description></pp:description></pp:photo>';
+			$xml_str = $this->httpStreamToString();	
 			
 			$model = ucfirst(substr($this->params["controller"],0,-1));
 			
 			App::import('Helper', 'Xmlbuilder');
 			$x = new XmlbuilderHelper();
-			if ($x->validate($xml_test)) // validate file stream source
+			if ($x->validate($xml_str)) // validate file stream source
 			{
 				$doc = new DOMDocument();
 				$doc->preserveWhiteSpace = false;
-				$doc->loadXML($xml_test);
+				$doc->loadXML($xml_str);
 				
 				$xpath = new DOMXPath($doc);
 				$tag = $xpath->query('//pp:photo')->item(0); // tag to write to db
