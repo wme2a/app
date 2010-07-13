@@ -317,7 +317,7 @@ class PhotosController extends AppController
 		
 		$result = $this->Photo->findById($id); // just one result
 		
-		if ($id && $this->Photo->delete($id, true)) // delete cascaded
+		if ($id && (sizeof($result) > 0) && $this->Photo->delete($id, true)) // delete cascaded
 		{ 
 			unlink(WWW_ROOT."img\img\\".$result['Photo']['original_filename']);
 			unlink(WWW_ROOT."img\smallimg\\".$result['Photo']['original_filename']);
