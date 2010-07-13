@@ -2,57 +2,116 @@
 class RatingsController extends AppController {
 
 	var $name = 'Ratings';
-
-	function index() {
-		$this->Rating->recursive = 0;
-		echo "DEBUGGING <br />-------------<br />";
-	
-	$urlParams = array();
-	$model = " ";
-	
-	foreach ($this->params['url'] as $key => $val) {
-		if ($key=="url") {
-			$model=ucfirst($val); // first letter uppercase
-			$model=substr(ucfirst($val),0,strlen($model)-1);
-			echo $key . " = " . $val . "<br />";
-		}
-		else {
-			$urlParams[$key]=$val;
-			echo $key . " = " . $val . "<br />";
-		}
-	}
-	if ($urlParams) {
-		// generates conditions from GET params
-		$cond = "";
-		foreach	($urlParams as $k => $v) {
-			$cond .= $model . "." . $k . " = " . $v . " AND ";
-		}
-		$cond = substr($cond,0,strlen($cond)-5); //delete last " AND "
-		// debugging
-		echo "§model = " . $model . " | §cond = " . $cond . "<br/>";
-		// db request
-		$eintraege = $this->Rating->find('all', array(
-			'conditions' => array($cond)
+	var $helpers = array('Xmlbuilder','Jsonbuilder');	
+	var $components = array('RequestHandler');
+	function index() 
+	{
+		// URL Beispiele
+		// http://localhost/cakephp/ratings?id=2
+		// http://localhost/cakephp/ratings?photoid=1
+		// http://localhost/cakephp/ratings?id=1&photoid=1	
+		$allowedQryParams = array(
+			"id"=>"id",
+			"ratingid"=>"photo_id"
+			);
+		$allowedCtrlParams = array(
+			"apikey" => "",
+			"format" => array("xml","json")
+			);
 			
-		));
-	}
-	else {
-		$eintraege = $this->Rating->find('all');
-	}
-	
-	$this->set('eintraege',$eintraege);
-	$this->set('test',$urlParams); //debugging
-		$this->set('ratings', $this->paginate());
-	}
-
-	function view($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid rating', true));
-			$this->redirect(array('action' => 'index'));
+		$invalidParams = false;
+		$model = "";
+		$urlParams = array();
+		
+		// kind of default settings spec
+		$parsedParams=array();
+		$parsedParams["format"]="xml";
+		$parsedParams["urlparams"]=array();
+		
+		foreach ($this->params['url'] as $key => $val) {
+			if ($key=="url") {
+				$model=ucfirst(preg_replace('/[^a-z]/','',strtolower($val)));
+				$model=substr($model,0,strlen($model)-1);
+			}
+			else {
+				$key = strtolower($key);
+				
+				if (array_key_exists($key, $allowedQryParams))
+				{
+					$val = preg_replace('/[^a-zA-Z0-9öÖüÜäÄß_]/','',$val);
+					$urlParams = array_merge($urlParams,array(array($model.'.'.$allowedQryParams[$key] => $val)));
+				}
+				else 
+				{
+					if (array_key_exists($key, $allowedCtrlParams)) 
+					{
+						switch($key) {
+							case "format":
+							{
+								if (in_array($val, $allowedCtrlParams["format"]))
+								{
+									$parsedParams["format"] = $val;
+								}
+								else 
+									$invalidParams = true;	
+								break;
+							}
+								
+							case "apikey":
+							{ 	
+								// has not to be implemented
+								break;
+							}
+						}
+					}
+					else 
+					{
+						if ($key != 'ext') $invalidParams=true; //if Routes w/ Router::parseExtensions()
+					}
+				}
+			}
 		}
-		$this->set('rating', $this->Rating->read(null, $id));
+		
+		if (!$invalidParams)
+		{
+			// creating $parsedParams["urlparams"] for conditions/where-clause
+			if ($urlParams) 
+			{
+				$parsedParams["urlparams"] = array('AND' => $urlParams);
+			}
+			
+			// conditions/where-clause available OR null
+			if ($parsedParams["urlparams"])
+				$conditions = array('AND' => array(
+					$parsedParams["urlparams"]
+					));
+			else $conditions = null; 
+				
+			// db request
+			$results = $this->Rating->find('all', array(
+				'conditions' => $conditions,
+			));
+			
+			// setting vars for views
+			$this->set("results",$results);
+			
+			switch ($parsedParams["format"]) 
+			{
+			
+				case "json": 
+					$this->render('\\'.$model.'s\json\index','\json\default',null);
+					break;
+				default: //"xml"
+					$this->render('\\'.$model.'s\xml\index','\xml\default',null);
+					break;
+			}
+		}
+		else
+		{
+			$this->set("results",null);
+			//$this->render('\errors\invalide_params','default',null);
+		}
 	}
-
 	function add() {
 		if (!empty($this->data)) {
 			$this->Rating->create();

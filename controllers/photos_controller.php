@@ -250,7 +250,72 @@ class PhotosController extends AppController
 
 	function add() 
 	{
-		echo "TODO: add()";
+	
+		if (!empty($this->data)) {
+			$file = $this->data['Photo']['img'];
+			$fileOK = $this->uploadFile('img/img',$file);
+			if($fileOK)
+			{				
+				$me = true; // all metadata is able to read
+				// read the metadata
+				$exif_data = exif_read_data(WWW_ROOT.'img/img/'.$file['name'],'EXIF',0);
+				// set the metadata to array			
+				$this->data['Photo']['width']=$exif_data['COMPUTED']['Width'];
+				$this->data['Photo']['height']=$exif_data['COMPUTED']['Height'];
+				list($x,$y)=explode('img/img/',$fileOK['url']);
+				$this->data['Photo']['original_filename']=$y;	
+				if(isset($exif_data['COMPUTED']['ApertureFNumber'])){
+					$this->data['Photo']['aperture']=$exif_data['COMPUTED']['ApertureFNumber'];
+					}
+					else $me = false;
+				if(isset($exif_data['ExposureTime']))
+					$this->data['Photo']['exposuretime']=$exif_data['ExposureTime'].'s';
+					else $me = false;
+				if(isset($exif_data['FocalLength'])){
+					list($x,$y)=explode("/1",$exif_data['FocalLength']);
+					$this->data['Photo']['focallength']=$x.'mm';}
+					else $me = false;
+				if (isset($exif_data['GPSLatitude']))
+				{	
+						//convert Geo-data to decimal value					
+						$lat = $this->exifGeoCoordinateToDecimal($exif_data["GPSLatitudeRef"], $exif_data["GPSLatitude"]);
+						$lon = $this->exifGeoCoordinateToDecimal($exif_data["GPSLongitudeRef"], $exif_data["GPSLongitude"]);
+						$this->data['Photo']['geo_lat']=$lat;
+						$this->data['Photo']['geo_long']=$lon;
+				}
+				else $me = false;
+				//if upload succeseful save metadata of photo to database				
+				if($me)
+				{
+					$this->Photo->create();
+					if (($this->Photo->save($this->data))) {
+						//$this->Session->setFlash(__('The photo has been saved', true));
+						$this->flash(__('Photo saved.', true), array('action' => 'index'));
+						/**
+							$url = $fileOK['url'];
+							echo '<div class="uploaded_image">';
+							echo '<img src="/$url" alt="Photo Image" />';
+							echo '</div>';
+						**/
+						//$this->redirect(array('action' => 'index'));
+					} 
+					else {
+							//$this->Session->setFlash(__('The photo could not be saved. Please, try again.',true));
+							unlink($fileOK['url']);
+							$this->flash(__('Photo not be saved, try again', true), array('action' => 'index'));
+						 }
+				  }
+				  else 
+				  {		
+				  		unlink(WWW_ROOT.$fileOK['url']);
+				  		$this->flash(__('Read Metadata failure, try again', true), array('action' => 'index'));
+						 
+				  }
+			}
+			else $this->flash(__('Upload Photo failure, try again', true), array('action' => 'index'));
+			}
+		$users = $this->Photo->User->find('list');
+		$this->set(compact('users'));
 	}
 
 	function edit() 
