@@ -25,7 +25,6 @@ class PhotosController extends AppController
 		$invalidParams = false;
 		$model = "";
 		$urlParams = array();
-		
 		// kind of default settings spec
 		$parsedParams=array();
 		$parsedParams["format"]="html";
@@ -248,17 +247,19 @@ class PhotosController extends AppController
 		else $this->set("results",null);
 	}
 
-	function add() 
+	function add($name=null) 
 	{
-	
+		$id = array_key_exists("name", $this->params['url']) ? intval($this->params['url']['name']) : null;
 		if (!empty($this->data)) {
 			$file = $this->data['Photo']['img'];
+			//echo(var_dump($this->data));
 			$fileOK = $this->uploadFile('img/img',$file);
 			if($fileOK)
 			{				
 				$me = true; // all metadata is able to read
 				// read the metadata
 				$exif_data = exif_read_data(WWW_ROOT.'img/img/'.$file['name'],'EXIF',0);
+				//var_dump($exif_data);
 				// set the metadata to array			
 				$this->data['Photo']['width']=$exif_data['COMPUTED']['Width'];
 				$this->data['Photo']['height']=$exif_data['COMPUTED']['Height'];
@@ -289,33 +290,31 @@ class PhotosController extends AppController
 				{
 					$this->Photo->create();
 					if (($this->Photo->save($this->data))) {
-						//$this->Session->setFlash(__('The photo has been saved', true));
-						$this->flash(__('Photo saved.', true), array('action' => 'index'));
-						/**
-							$url = $fileOK['url'];
-							echo '<div class="uploaded_image">';
-							echo '<img src="/$url" alt="Photo Image" />';
-							echo '</div>';
-						**/
-						//$this->redirect(array('action' => 'index'));
+						header("HTTP/1.0 201 Created");
+					return true;
 					} 
 					else {
 							//$this->Session->setFlash(__('The photo could not be saved. Please, try again.',true));
 							unlink($fileOK['url']);
-							$this->flash(__('Photo not be saved, try again', true), array('action' => 'index'));
+							header("HTTP/1.0 412 Precondition Failed");
+				echo "";
+				return false;
 						 }
 				  }
 				  else 
 				  {		
 				  		unlink(WWW_ROOT.$fileOK['url']);
-				  		$this->flash(__('Read Metadata failure, try again', true), array('action' => 'index'));
+				  		header("HTTP/1.0 412 Precondition Failed");
+				echo "";
+				return false;
 						 
 				  }
 			}
 			else $this->flash(__('Upload Photo failure, try again', true), array('action' => 'index'));
 			}
-		$users = $this->Photo->User->find('list');
-		$this->set(compact('users'));
+		//$users = $this->Photo->User->find('list');
+		//$this->set(compact('users'));
+		
 	}
 
 	function edit() 

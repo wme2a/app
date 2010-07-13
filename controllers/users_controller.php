@@ -117,83 +117,24 @@ class UsersController extends AppController {
 		if (!empty($d)) {
 			$this->User->create();
 			if ($this->User->save($d)) {
-				$this->flash(__('User saved.', true), array('action' => 'index'));
+				header("HTTP/1.0 201 Created");
+					return true;
 			} else {
+				header("HTTP/1.0 412 Precondition Failed");
+				echo "";
+				return false;
 			}
 		}
 	}
-
-	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->flash(sprintf(__('Invalid user', true)), array('action' => 'index'));
-		}
-		if (!empty($this->data)) {
-			if ($this->User->save($this->data)) {
-				$this->flash(__('The user has been saved.', true), array('action' => 'index'));
-			} else {
-			}
-		}
-		if (empty($this->data)) {
-			$this->data = $this->User->read(null, $id);
-		}
-	}
-
+	
 	function delete($id = null) {
-		if (!$id) {
-			$this->flash(sprintf(__('Invalid user', true)), array('action' => 'index'));
-		}
+		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
 		if ($this->User->delete($id)) {
-			$this->flash(__('User deleted', true), array('action' => 'index'));
+			return true;
 		}
-		$this->flash(__('User was not deleted', true), array('action' => 'index'));
-		$this->redirect(array('action' => 'index'));
-	}
-	function admin_index() {
-		$this->User->recursive = 0;
-		$this->set('users', $this->paginate());
-	}
-
-	function admin_view($id = null) {
-		if (!$id) {
-			$this->flash(__('Invalid user', true), array('action' => 'index'));
-		}
-		$this->set('user', $this->User->read(null, $id));
-	}
-
-	function admin_add() {
-		if (!empty($this->data)) {
-			$this->User->create();
-			if ($this->User->save($this->data)) {
-				$this->flash(__('User saved.', true), array('action' => 'index'));
-			} else {
-			}
-		}
-	}
-
-	function admin_edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->flash(sprintf(__('Invalid user', true)), array('action' => 'index'));
-		}
-		if (!empty($this->data)) {
-			if ($this->User->save($this->data)) {
-				$this->flash(__('The user has been saved.', true), array('action' => 'index'));
-			} else {
-			}
-		}
-		if (empty($this->data)) {
-			$this->data = $this->User->read(null, $id);
-		}
-	}
-
-	function admin_delete($id = null) {
-		if (!$id) {
-			$this->flash(sprintf(__('Invalid user', true)), array('action' => 'index'));
-		}
-		if ($this->User->delete($id)) {
-			$this->flash(__('User deleted', true), array('action' => 'index'));
-		}
-		$this->flash(__('User was not deleted', true), array('action' => 'index'));
-		$this->redirect(array('action' => 'index'));
+		header("HTTP/1.0 404 Not Found");
+		echo "";
+		return false;
 	}
 }
 ?>

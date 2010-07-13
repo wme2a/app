@@ -109,39 +109,19 @@ class RatingsController extends AppController {
 		else
 		{
 			$this->set("results",null);
-			//$this->render('\errors\invalide_params','default',null);
 		}
 	}
 	function add() {
 		if (!empty($this->data)) {
 			$this->Rating->create();
 			if ($this->Rating->save($this->data)) {
-				$this->Session->setFlash(__('The rating has been saved', true));
-				$this->redirect(array('action' => 'index'));
+				header("HTTP/1.0 201 Created");
+				return true;
 			} else {
-				$this->Session->setFlash(__('The rating could not be saved. Please, try again.', true));
+				header("HTTP/1.0 412 Precondition Failed");
+				echo "";
+				return false;
 			}
-		}
-		$photos = $this->Rating->Photo->find('list');
-		$users = $this->Rating->User->find('list');
-		$this->set(compact('photos', 'users'));
-	}
-
-	function edit($id = null) {
-		if (!$id && empty($this->data)) {
-			$this->Session->setFlash(__('Invalid rating', true));
-			$this->redirect(array('action' => 'index'));
-		}
-		if (!empty($this->data)) {
-			if ($this->Rating->save($this->data)) {
-				$this->Session->setFlash(__('The rating has been saved', true));
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$this->Session->setFlash(__('The rating could not be saved. Please, try again.', true));
-			}
-		}
-		if (empty($this->data)) {
-			$this->data = $this->Rating->read(null, $id);
 		}
 		$photos = $this->Rating->Photo->find('list');
 		$users = $this->Rating->User->find('list');
@@ -149,16 +129,13 @@ class RatingsController extends AppController {
 	}
 
 	function delete($id = null) {
-		if (!$id) {
-			$this->Session->setFlash(__('Invalid id for rating', true));
-			$this->redirect(array('action'=>'index'));
-		}
+		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
 		if ($this->Rating->delete($id)) {
-			$this->Session->setFlash(__('Rating deleted', true));
-			$this->redirect(array('action'=>'index'));
+			return true; 
 		}
-		$this->Session->setFlash(__('Rating was not deleted', true));
-		$this->redirect(array('action' => 'index'));
+		header("HTTP/1.0 404 Not Found");
+		echo "";
+		return false;
 	}
 }
 ?>
