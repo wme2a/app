@@ -124,5 +124,20 @@ class AppController extends Controller
 		}
 		return $result;
 	}
+	
+	function httpStreamToString() {
+	
+		/* PUT data comes in on the stdin stream */
+		$putdata = fopen("php://input", "r");
+		
+		$str = "";
+		while ($data = fread($putdata, 1024)) { // Read the data 1 KB at a time and write to the file
+			$str .= $data;
+		}
+		/* Close the stream */
+		fclose($putdata);
+		
+		return $str;
+	}
 } 
 ?>

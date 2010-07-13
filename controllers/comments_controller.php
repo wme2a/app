@@ -112,17 +112,18 @@ class CommentsController extends AppController
 	
 	function add() 
 	{
-		$xml_test='<pp:comment xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="4" photo_id="2" user_id="2" title="Sparkurs">Dass die Uni so sehr sparen muss...</pp:comment>';
-		
+		//$xml_str='<pp:comment xmlns:pp="http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter" id="4" photo_id="2" user_id="2" title="Sparkurs">Dass die Uni so sehr sparen muss...</pp:comment>';
+		$xml_str = $this->httpStreamToString();	
+	
 		$model = ucfirst(substr($this->params["controller"],0,-1));
 		
 		App::import('Helper', 'Xmlbuilder');
 		$x = new XmlbuilderHelper();
-		if ($x->validate($xml_test)) // validate file stream source
+		if ($x->validate($xml_str)) // validate file stream source
 		{
 			$doc = new DOMDocument();
 			$doc->preserveWhiteSpace = false;
-			$doc->loadXML($xml_test);
+			$doc->loadXML($xml_str);
 			
 			$xpath = new DOMXPath($doc);
 			$tag = $xpath->query('//pp:comment')->item(0); // tag to write to db

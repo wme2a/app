@@ -29,7 +29,7 @@ class XmlbuilderHelper extends AppHelper {
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 			$xs .=  $x->elem('pp:photos', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
 			foreach ($results as $row) {
-				$row['Photo']['author'] = $row['Photo']['user_id']; // add attr author (rename user_id to author)
+				$row['Photo']['author'] =  $row['Photo']['user_id'] != null ? intval($row['Photo']['user_id']) : 0; // add attr author (rename user_id to author)
 				unset($row['Photo']['user_id']); // remove attr user_id (rename user_id to author)
 				$description = $row['Photo']['description']; // set $description for content
 				unset($row['Photo']['description']); // remove attr description
@@ -39,7 +39,11 @@ class XmlbuilderHelper extends AppHelper {
 				unset($row['Photo']['original_filename']); // based on xsd validation
 				unset($row['Photo']['upload_complete']); // based on xsd validation
 				$xs .=  $x->elem('pp:photo', $row['Photo'], null, false).">";
-					$xs .=  $x->elem('pp:description', null, $description, false); // $description as content
+					if ($description)
+					{
+						$xs .=  $x->elem('pp:description', null, $description, false); // $description as content & has content
+					} else 
+						$xs .=  $x->elem('pp:description', null, null, false).">";
 					$xs .=  $x->closeElem();
 					$xs .=  $x->elem('pp:tags', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
 						foreach ($row['Tag'] as $r) {
@@ -97,7 +101,7 @@ class XmlbuilderHelper extends AppHelper {
 						$xs .=  $x->closeElem();
 					}
 				$xs .=  $x->closeElem();
-			//	$xs = $this->formatOutput($xs);
+				$xs = $this->formatOutput($xs);
 		}
 		return $xs;
 	}
