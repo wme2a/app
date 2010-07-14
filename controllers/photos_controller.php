@@ -247,35 +247,42 @@ class PhotosController extends AppController
 		else $this->set("results",null);
 	}
 
-	function add($name=null) 
+	function add() 
 	{
-		$id = array_key_exists("name", $this->params['url']) ? intval($this->params['url']['name']) : null;
-		if (!empty($this->data)) {
-			$file = $this->data['Photo']['img'];
-			//echo(var_dump($this->data));
-			$fileOK = $this->uploadFile('img/img',$file);
+		if(array_key_exists("name", $this->params['url'])) $n = ($this->params['url']['name']);
+		$teile = explode(".", $n);
+		$putdata = fopen("php://input", "r");
+		$fp = fopen(WWW_ROOT.'img/img/'.$n, "w");
+		while ($data = fread($putdata, 51200))
+  		$fileOK = fwrite($fp, $data);
+		fclose($fp);
+		fclose($putdata);
+		if(file_exists(WWW_ROOT.'img/img/'.$n)) {
+			$result = $this->Photo->findByOriginal_filename($n);
+			$id = $result['Photo']['id'];
+		}
 			if($fileOK)
-			{				
-				$me = true; // all metadata is able to read
+			{
 				// read the metadata
-				$exif_data = exif_read_data(WWW_ROOT.'img/img/'.$file['name'],'EXIF',0);
-				//var_dump($exif_data);
+				$exif_data = exif_read_data(WWW_ROOT.'img/img/'.$n,'EXIF',0);
 				// set the metadata to array			
+				if($id) $this->data['Photo']['id']= $id;
+				$type = $exif_data['MimeType'];
+				if($type == 'image/jpeg') $changedName = $teile[0].".jpg";
+				if($type == 'image/png') $changedName = $teile[0].".png";
+				rename(WWW_ROOT.'img/img/'.$n,WWW_ROOT.'img/img/'.$changedName);
 				$this->data['Photo']['width']=$exif_data['COMPUTED']['Width'];
 				$this->data['Photo']['height']=$exif_data['COMPUTED']['Height'];
-				list($x,$y)=explode('img/img/',$fileOK['url']);
-				$this->data['Photo']['original_filename']=$y;	
+				//list($x,$y)=explode('img/img/',$fileOK['url']);
+				$this->data['Photo']['original_filename']=$changedName;	
 				if(isset($exif_data['COMPUTED']['ApertureFNumber'])){
 					$this->data['Photo']['aperture']=$exif_data['COMPUTED']['ApertureFNumber'];
 					}
-					else $me = false;
 				if(isset($exif_data['ExposureTime']))
 					$this->data['Photo']['exposuretime']=$exif_data['ExposureTime'].'s';
-					else $me = false;
 				if(isset($exif_data['FocalLength'])){
 					list($x,$y)=explode("/1",$exif_data['FocalLength']);
 					$this->data['Photo']['focallength']=$x.'mm';}
-					else $me = false;
 				if (isset($exif_data['GPSLatitude']))
 				{	
 						//convert Geo-data to decimal value					
@@ -284,37 +291,34 @@ class PhotosController extends AppController
 						$this->data['Photo']['geo_lat']=$lat;
 						$this->data['Photo']['geo_long']=$lon;
 				}
-				else $me = false;
+				}
 				//if upload succeseful save metadata of photo to database				
-				if($me)
+				if($exif_data)
 				{
 					$this->Photo->create();
 					if (($this->Photo->save($this->data))) {
+						$this->resizeImage(WWW_ROOT.'img/img/'.$changedName,WWW_ROOT.'img/smallimg/',400, 400);
+						$this->resizeImage(WWW_ROOT.'img/img/'.$changedName,WWW_ROOT.'img/thumbnail/',120, 120);
+						$this->resizeImage(WWW_ROOT.'img/img/'.$changedName,WWW_ROOT.'img/tinyimg/',50, 50);
 						header("HTTP/1.0 201 Created");
-					return true;
+						return true;
 					} 
 					else {
-							//$this->Session->setFlash(__('The photo could not be saved. Please, try again.',true));
-							unlink($fileOK['url']);
+							unlink(WWW_ROOT.'img/img/'.$changedName);
 							header("HTTP/1.0 412 Precondition Failed");
-				echo "";
-				return false;
+							echo "";
+							return false;
 						 }
 				  }
-				  else 
-				  {		
-				  		unlink(WWW_ROOT.$fileOK['url']);
+				else 
+				{		
+				  		unlink(WWW_ROOT.'img/img/'.$changedName);
 				  		header("HTTP/1.0 412 Precondition Failed");
-				echo "";
-				return false;
+						echo "";
+						return false;
 						 
-				  }
-			}
-			else $this->flash(__('Upload Photo failure, try again', true), array('action' => 'index'));
-			}
-		//$users = $this->Photo->User->find('list');
-		//$this->set(compact('users'));
-		
+			    }
+			
 	}
 
 	function edit() 

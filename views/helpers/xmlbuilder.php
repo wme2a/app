@@ -153,7 +153,7 @@ class XmlbuilderHelper extends AppHelper {
 			$xs .= $x->header();
 			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
 				$xs .=  $x->elem('pp:users',null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
-			foreach ($results as $r) {
+				foreach ($results as $r) {
 						$xs .=  $x->elem('pp:user', $r['User'], null, false).">"; // $comment_text as content
 						$xs .=  $x->closeElem();
 					}

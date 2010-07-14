@@ -115,7 +115,7 @@ class JsonbuilderHelper extends AppHelper {
 		return json_encode($json); // style like JSON definition above
 		//return json_encode(array("comments" => $json)); style like JSON of example WS
 	}
-	
+	// not need to implement
 	function tagsToJson($results) 
 	{ 
 		$json = array();
@@ -126,22 +126,65 @@ class JsonbuilderHelper extends AppHelper {
 		return json_encode($json); // style like JSON definition above
 	}
 	
+	/**
+	 * JSON Object
+	 * {"description":"A rating on a photo, made by a single user.",
+	 * "type":"object",
+	 * "properties":{
+	 *	"id":{"type":"number","description":"ID of this rating."},
+	 *	"value":{"type":"number","description":"The value of this rating, from 1 to 5 (Amazon style)."},
+	 *	"user":{"type":"number","description":"ID of the user who submitted this rating."},
+	 *	"photo":{"type":"number","description":"ID of the photo this rating was submitted for."}
+	 *	}
+	 *}	 
+	 * @param unknown_type $results
+	 */
 	function ratingsToJson($results) 
 	{ 
 		$json = array();
 		if (sizeof($results)>0)
 		{
-	
+		$json = array();
+			foreach ($results as $r) {
+				$properties = array();
+				$properties["id"] = intval($r['Rating']['id']);
+				$properties["user"] = intval($r['Rating']['user_id']);
+				$properties["photo"] = intval($r['Rating']['photo_id']);
+				$properties["value"] = intval($r['Rating']['value']);
+				array_push($json, $properties); // style like JSON definition above
+				//array_push($json, array("comment" => $properties)); style like JSON of example WS
+			}
 		}
 		return json_encode($json); // style like JSON definition above
 	}
 	
+	/**
+	 * **
+	 * JSON Object	
+	 * {"description":"A user of the PhotonPainter application landscape.",
+	 *	 "type":"object",
+	 *	 "properties":{
+	 *	 "id":{"type":"number","description":"ID of this user."},
+	 *	 "login":{"type":"string","description":"The user's account name."},
+	 *	 "password":{"type":"string","description":"The user's password. Used only for submitting authentication data."}
+	 *	 }
+	 * }
+	 * @param $results
+	 */
 	function usersToJson($results) 
 	{ 
 		$json = array();
 		if (sizeof($results)>0)
 		{
-
+		$json = array();
+			foreach ($results as $r) {
+				$properties = array();
+				$properties["id"] = intval($r['User']['id']);
+				$properties["login"] = intval($r['User']['username']);
+				$properties["password"] = utf8_encode($r['User']['password']);
+				array_push($json, $properties); // style like JSON definition above
+				//array_push($json, array("comment" => $properties)); style like JSON of example WS
+			}
 		}
 		return json_encode($json); // style like JSON definition above
 	}
