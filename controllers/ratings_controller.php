@@ -12,7 +12,7 @@ class RatingsController extends AppController {
 		// http://localhost/cakephp/ratings?id=1&photoid=1	
 		$allowedQryParams = array(
 			"id"=>"id",
-			"ratingid"=>"photo_id"
+			"photoid"=>"photo_id"
 			);
 		$allowedCtrlParams = array(
 			"apikey" => "",

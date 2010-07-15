@@ -10,8 +10,6 @@ class JsonbuilderHelper extends AppHelper {
 				return $this->output($this->photosToJson($results));
 			case "comments":
 				return $this->output($this->commentsToJson($results));
-			case "tags":
-				return $this->output($this->tagsToJson($results));
 			case "ratings":
 				return $this->output($this->ratingsToJson($results));
 			case "users":
@@ -52,7 +50,7 @@ class JsonbuilderHelper extends AppHelper {
 			foreach ($results as $row) {
 				$props = array();
 				$props["id"] = intval($row['Photo']['id']);
-				$props["uri"] = utf8_encode($this->Html->url('/photos?format=img&id='.$row['Photo']['id'])); // !!! TODO $row['Photo']['original_filename']
+				$props["uri"] = utf8_encode($this->Html->url('/photos?format=img&id='.$row['Photo']['id']));
 				$props["title"] = utf8_encode($row['Photo']['title']);
 				$props["created"] = strtotime($row['Photo']['created']);
 				$props["width"] = intval($row['Photo']['width']);
@@ -115,16 +113,6 @@ class JsonbuilderHelper extends AppHelper {
 		return json_encode($json); // style like JSON definition above
 		//return json_encode(array("comments" => $json)); style like JSON of example WS
 	}
-	// not need to implement
-	function tagsToJson($results) 
-	{ 
-		$json = array();
-		if (sizeof($results)>0)
-		{
-		
-		}
-		return json_encode($json); // style like JSON definition above
-	}
 	
 	/**
 	 * JSON Object
@@ -180,7 +168,7 @@ class JsonbuilderHelper extends AppHelper {
 			foreach ($results as $r) {
 				$properties = array();
 				$properties["id"] = intval($r['User']['id']);
-				$properties["login"] = intval($r['User']['username']);
+				$properties["login"] = utf8_encode($r['User']['username']);
 				$properties["password"] = utf8_encode($r['User']['password']);
 				array_push($json, $properties); // style like JSON definition above
 				//array_push($json, array("comment" => $properties)); style like JSON of example WS

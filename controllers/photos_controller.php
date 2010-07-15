@@ -240,7 +240,7 @@ class PhotosController extends AppController
 					$this->render('\\'.$model.'s\json\index','\json\default',null);
 					break;
 				default: //"xml"
-					$this->render('\\'.$model.'s\xml\index','xml\default',null);
+					$this->render('\\'.$model.'s\xml\index','\xml\default',null);
 					break;
 			}
 		}

@@ -12,7 +12,8 @@ class UsersController extends AppController {
 		// http://localhost/cakephp/users?id=1&photoid=1	
 		$allowedQryParams = array(
 			"id"=>"id",
-			"userid"=>"user_id"
+			"username"=>"username",
+			"password"=>"password"
 			);
 		$allowedCtrlParams = array(
 			"apikey" => "",

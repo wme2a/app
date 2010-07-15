@@ -94,3 +94,8 @@
 2010-07-13 10:56:51 Debug: Notice (8): Undefined offset: 1 in [C:\xampp\htdocs\cakecore\app\controllers\photos_controller.php, line 267]
 2010-07-13 10:56:51 Debug: Notice (8): Undefined index: url in [C:\xampp\htdocs\cakecore\app\controllers\photos_controller.php, line 312]
 2010-07-13 21:47:25 Debug: Notice (8): Undefined variable: model in [C:\xampp\htdocs\cakecore\app\controllers\photos_controller.php, line 318]
+2010-07-14 20:52:35 Debug: Notice (8): Undefined property: View::$Paginator in [E:\xampplite\htdocs\cakephp\app\views\users\index.ctp, line 5]
+2010-07-14 20:53:17 Debug: Notice (8): Undefined property: View::$Paginator in [E:\xampplite\htdocs\cakephp\app\views\users\index.ctp, line 5]
+2010-07-14 20:55:37 Debug: Notice (8): Undefined property: View::$Paginator in [E:\xampplite\htdocs\cakephp\app\views\ratings\index.ctp, line 5]
+2010-07-14 20:55:51 Debug: Notice (8): Undefined property: View::$Paginator in [E:\xampplite\htdocs\cakephp\app\views\ratings\index.ctp, line 5]
+2010-07-14 20:55:55 Debug: Notice (8): Undefined property: View::$Paginator in [E:\xampplite\htdocs\cakephp\app\views\ratings\index.ctp, line 5]
