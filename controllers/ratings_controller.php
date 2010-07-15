@@ -12,7 +12,10 @@ class RatingsController extends AppController {
 		// http://localhost/cakephp/ratings?id=1&photoid=1	
 		$allowedQryParams = array(
 			"id"=>"id",
-			"ratingid"=>"photo_id"
+			"ratingid"=>"rating_id",
+			"photoid"=>"photo_id",
+			"userid"=>"user_id",
+			"value"=>"value"
 			);
 		$allowedCtrlParams = array(
 			"apikey" => "",
@@ -94,7 +97,11 @@ class RatingsController extends AppController {
 			
 			// setting vars for views
 			$this->set("results",$results);
-			
+			if(!$results)
+			{
+				header("HTTP/1.0 404 Not Found");
+				echo "";
+			}
 			switch ($parsedParams["format"]) 
 			{
 			
@@ -112,6 +119,9 @@ class RatingsController extends AppController {
 		}
 	}
 	function add() {
+		if(array_key_exists("id",$this->data["Rating"])){
+			unset($this->data["Rating"]["id"]);
+		};
 		if (!empty($this->data)) {
 			$this->Rating->create();
 			if ($this->Rating->save($this->data)) {
@@ -130,12 +140,23 @@ class RatingsController extends AppController {
 
 	function delete($id = null) {
 		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
-		if ($this->Rating->delete($id)) {
-			return true; 
+		if( $this->Rating->findById($id))
+		{
+			if ($this->Rating->delete($id)) {
+				return true; 
+			}
+			else
+			{
+				header("HTTP/1.0 500  Internal Error");
+				echo "";
+				return false;
+			}
 		}
-		header("HTTP/1.0 404 Not Found");
-		echo "";
-		return false;
+		else{
+				header("HTTP/1.0 404 Not Found");
+				echo "";
+				return false;
+       		}
 	}
 }
 ?>

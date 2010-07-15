@@ -106,25 +106,6 @@ class XmlbuilderHelper extends AppHelper {
 		return $xs;
 	}
 	
-	function tagsToXml($results) 
-	{ 
-		$xs = "";
-		if (sizeof($results)>0)
-		{
-			$x = $this->Xml;
-			$xs .= $x->header();
-			$x->addNS('pp', 'http://www-mmt.inf.tu-dresden.de/Lehre/Sommersemester_10/Vo_WME/Uebung/material/photonpainter');
-				$xs .=  $x->elem('pp:tags', null, null, false).">"; // .">" needed to close the tag, because the tag stays open, if content == null
-				foreach ($results as $r) {
-						$xs .=  $x->elem('pp:tag', $r['Tag'], null, false).">"; // $comment_text as content
-						$xs .=  $x->closeElem();
-					}
-				$xs .=  $x->closeElem();
-				$xs = $this->formatOutput($xs);
-		}
-		return $xs;
-	}
-	
 	function ratingsToXml($results) 
 	{ 
 		$xs = "";

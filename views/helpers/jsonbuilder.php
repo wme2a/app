@@ -115,16 +115,6 @@ class JsonbuilderHelper extends AppHelper {
 		return json_encode($json); // style like JSON definition above
 		//return json_encode(array("comments" => $json)); style like JSON of example WS
 	}
-	// not need to implement
-	function tagsToJson($results) 
-	{ 
-		$json = array();
-		if (sizeof($results)>0)
-		{
-		
-		}
-		return json_encode($json); // style like JSON definition above
-	}
 	
 	/**
 	 * JSON Object

@@ -12,7 +12,8 @@ class UsersController extends AppController {
 		// http://localhost/cakephp/users?id=1&photoid=1	
 		$allowedQryParams = array(
 			"id"=>"id",
-			"userid"=>"user_id"
+			"username"=>"username",
+			"password"=>"password"
 			);
 		$allowedCtrlParams = array(
 			"apikey" => "",
@@ -86,15 +87,18 @@ class UsersController extends AppController {
 					$parsedParams["urlparams"]
 					));
 			else $conditions = null; 
-				
 			// db request
 			$results = $this->User->find('all', array(
 				'conditions' => $conditions,
 			));
-			
+
 			// setting vars for views
 			$this->set("results",$results);
-			
+			if(!$results)
+			{
+				header("HTTP/1.0 404 Not Found");
+				echo "";
+			}
 			switch ($parsedParams["format"]) 
 			{
 			
@@ -109,10 +113,14 @@ class UsersController extends AppController {
 		else
 		{
 			$this->set("results",null);
-			//$this->render('\errors\invalide_params','default',null);
 		}
 	}
+	
+	
 	function add() {
+		if(array_key_exists("id",$this->data["User"])){
+			unset($this->data["User"]["id"]);
+		};
 		$d = $this->data;
 		if (!empty($d)) {
 			$this->User->create();
@@ -129,12 +137,23 @@ class UsersController extends AppController {
 	
 	function delete($id = null) {
 		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
-		if ($this->User->delete($id)) {
+		if( $this->User->findById($id))
+		{
+			if ($this->User->delete($id)) {
 			return true;
+			}
+			else
+			{
+				header("HTTP/1.0 500  Internal Error");
+				echo "";
+				return false;
+			}
 		}
-		header("HTTP/1.0 404 Not Found");
-		echo "";
-		return false;
+        else{
+			header("HTTP/1.0 404 Not Found");
+			echo "";
+			return false;
+        }
 	}
 }
 ?>

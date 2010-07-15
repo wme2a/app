@@ -252,11 +252,25 @@ class PhotosController extends AppController
 		if(array_key_exists("name", $this->params['url'])) $n = ($this->params['url']['name']);
 		$teile = explode(".", $n);
 		$putdata = fopen("php://input", "r");
+		
 		$fp = fopen(WWW_ROOT.'img/img/'.$n, "w");
+		$size = 0;
 		while ($data = fread($putdata, 51200))
-  		$fileOK = fwrite($fp, $data);
+		{
+  			$fileOK = fwrite($fp, $data);
+  			$size = $size + strlen($data);
+  			if($size >= 10485760)
+  			break;
+		}
 		fclose($fp);
 		fclose($putdata);
+		if($size >= 10485760)
+		{
+			unlink(WWW_ROOT.'img/img/'.$n);
+							header("HTTP/1.0 412 Precondition Failed");
+							echo "";
+							return false;
+		}
 		if(file_exists(WWW_ROOT.'img/img/'.$n)) {
 			$result = $this->Photo->findByOriginal_filename($n);
 			$id = $result['Photo']['id'];
@@ -293,8 +307,6 @@ class PhotosController extends AppController
 				}
 				}
 				//if upload succeseful save metadata of photo to database				
-				if($exif_data)
-				{
 					$this->Photo->create();
 					if (($this->Photo->save($this->data))) {
 						$this->resizeImage(WWW_ROOT.'img/img/'.$changedName,WWW_ROOT.'img/smallimg/',400, 400);
@@ -309,16 +321,6 @@ class PhotosController extends AppController
 							echo "";
 							return false;
 						 }
-				  }
-				else 
-				{		
-				  		unlink(WWW_ROOT.'img/img/'.$changedName);
-				  		header("HTTP/1.0 412 Precondition Failed");
-						echo "";
-						return false;
-						 
-			    }
-			
 	}
 
 	function edit() 
