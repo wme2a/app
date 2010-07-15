@@ -155,10 +155,20 @@ class CommentsController extends AppController
 	{
 		$id = array_key_exists("id", $this->params['url']) ? intval($this->params['url']['id']) : null;
 		
-		if ($id && $this->Comment->delete($id, true)) // delete cascaded
-		{	
-			return true;
+		if ($id && $this->Comment->findById($id)) 
+		{
+			if ($id && $this->Comment->delete($id, true)) // delete cascaded
+			{	
+				return true;
+			}
+			else
+			{
+				header("HTTP/1.0 500 Internal Error");
+				echo "";
+				return false;
+			}
 		}
+		
 		header("HTTP/1.0 404 Not Found");
 		echo "";
 		return false;
