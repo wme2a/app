@@ -377,6 +377,11 @@ class PhotosController extends AppController
 				}
 			}
 		}
+		else
+		{
+			header("HTTP/1.0 412 Precondition Failed");
+			echo "XML VALIDATION ERROR - MISSING NAMESPACE ?";
+		}
 		header("HTTP/1.0 412 Precondition Failed");
 		echo "";	
 		return false;
